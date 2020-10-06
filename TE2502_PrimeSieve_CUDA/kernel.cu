@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
+//Sieves
+#include "sieves/sieve_base.h"
+
 //Misc
 inline void WaitForEnter() {
 	std::string str;
@@ -23,7 +26,8 @@ int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//---
 
-
+	SieveBase testSieve(100);
+	std::cout << testSieve.PrimeString() << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
