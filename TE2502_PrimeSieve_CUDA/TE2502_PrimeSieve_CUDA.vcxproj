@@ -82,9 +82,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sieves\sieve_base.cpp" />
+    <ClCompile Include="sieves\sieve_eratosthenes_cpu.cpp" />
+    <ClCompile Include="sieves\stat_handler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sieves\sieve_base.h" />
+    <ClInclude Include="sieves\sieve_eratosthenes_cpu.h" />
+    <ClInclude Include="sieves\stat_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

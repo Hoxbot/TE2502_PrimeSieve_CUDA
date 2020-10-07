@@ -1,17 +1,25 @@
 #include <string>
 
+#include "stat_handler.h"
+
 class SieveBase {
-private:
-	int n_ = 0;
+protected:
+	unsigned int n_ = 0;
 	bool* tracker_arr_;
 
-	void flip(unsigned int in_index);
+	StatHandler private_timer_;
 
-	void SimpleEratosthenes();
+	void SetNonPrime(unsigned int in_i);
+	void SetPrime(unsigned int in_i);
+
+	virtual void DoSieve() = 0;
 
 public:
 	SieveBase(unsigned int in_n);
 	~SieveBase();
 
-	std::string PrimeString();
+	std::string StringifyPrimes();
+	std::string StringifyTrackerArr();
+	std::string StringifyExecutionTime();
+	std::string StringifyResults(std::string in_title);
 };

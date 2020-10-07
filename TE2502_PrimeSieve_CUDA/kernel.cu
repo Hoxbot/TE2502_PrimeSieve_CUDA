@@ -12,7 +12,7 @@
 #include <crtdbg.h>
 
 //Sieves
-#include "sieves/sieve_base.h"
+#include "sieves/sieve_eratosthenes_cpu.h"
 
 //Misc
 inline void WaitForEnter() {
@@ -26,8 +26,9 @@ int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//---
 
-	SieveBase testSieve(100);
-	std::cout << testSieve.PrimeString() << std::endl;
+	SieveErathosthenesCPU EratosthenesA(23);
+
+	std::cout << EratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
