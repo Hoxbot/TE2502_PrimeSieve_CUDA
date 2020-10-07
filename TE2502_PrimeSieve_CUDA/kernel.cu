@@ -26,9 +26,10 @@ int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//---
 
-	SieveErathosthenesCPU EratosthenesA(23);
+	SieveErathosthenesCPU EratosthenesA(1000);
 
 	std::cout << EratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
+	//std::cout << EratosthenesA.StringifyTrackerArr() << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

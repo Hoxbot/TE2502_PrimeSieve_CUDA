@@ -3,6 +3,10 @@
 #include <cmath>
 
 //Private------------------------------------------------------------------------------------------
+bool SieveBase::CheckIndex(unsigned int in_i) {
+	return this->tracker_arr_[in_i];
+}
+
 void SieveBase::SetNonPrime(unsigned int in_i) {
 	this->tracker_arr_[in_i] = false;
 }
@@ -12,12 +16,17 @@ void SieveBase::SetPrime(unsigned int in_i) {
 }
 
 //Public-------------------------------------------------------------------------------------------
-SieveBase::SieveBase(unsigned int in_n) {
+SieveBase::SieveBase(unsigned int in_n, unsigned int in_first_val) {
 	this->n_ = in_n;
-	this->tracker_arr_ = new bool[n_]; //NTS: indexes [0, n-1]
-	//Start all values as true ("known as primes")
-	for (unsigned int i = 0; i < this->n_; i++) {
-		this->tracker_arr_[i] = true;
+	
+	this->index_offset_ = in_first_val;
+	this->n_alt_ = in_n - (in_first_val - 1);
+	
+	this->tracker_arr_ = new bool[this->n_alt_]; //NTS: indexes [0, n-1]
+	
+									   //Start all values as true ("known as primes")
+	for (unsigned int i = 0; i < this->n_alt_; i++) {
+		this->SetPrime(i);
 	}
 }
 
@@ -28,9 +37,9 @@ SieveBase::~SieveBase() {
 std::string SieveBase::StringifyPrimes() {
 	//Fix the string
 	std::string ret_str = "";
-	for (unsigned int i = 0; i < this->n_; i++) {
-		if (this->tracker_arr_[i]) {
-			ret_str += std::to_string(i) + ", ";
+	for (unsigned int i = 0; i < this->n_alt_; i++) {
+		if (this->CheckIndex(i)) {
+			ret_str += std::to_string(i+this->index_offset_) + ", ";
 		}
 	}
 
@@ -43,8 +52,8 @@ std::string SieveBase::StringifyPrimes() {
 std::string SieveBase::StringifyTrackerArr() {
 	//Fix the string
 	std::string ret_str = "";
-	for (unsigned int i = 0; i < this->n_; i++) {
-		ret_str += "[i=" + std::to_string(i) + "]:" + (this->tracker_arr_[i] ? "T\n" : "F\n");
+	for (unsigned int i = 0; i < this->n_alt_; i++) {
+		ret_str += "[i=" + std::to_string(i) + "]\t:\t(" + std::to_string(i + this->index_offset_) + (this->CheckIndex(i) ? ":T)\n" : ":F)\n");
 	}
 
 	//Return
@@ -70,8 +79,8 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 
 	//Count number of primes found
 	int num_of_p = 0;
-	for (unsigned int i = 0; i < this->n_; i++) {
-		if (this->tracker_arr_[i]) { num_of_p++; }
+	for (unsigned int i = 0; i < this->n_alt_; i++) {
+		if (this->CheckIndex(i)) { num_of_p++; }
 	}
 
 	//Fill fields:

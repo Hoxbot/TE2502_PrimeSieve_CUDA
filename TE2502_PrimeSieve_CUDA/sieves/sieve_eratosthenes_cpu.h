@@ -2,7 +2,6 @@
 
 class SieveErathosthenesCPU : public SieveBase {
 private:
-
 	void DoSieve();
 public:
 	SieveErathosthenesCPU(unsigned int in_n);

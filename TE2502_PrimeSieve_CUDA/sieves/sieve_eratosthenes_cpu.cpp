@@ -10,11 +10,11 @@ void SieveErathosthenesCPU::DoSieve() {
 														//			if (i > root(n)) => i^2 > n, and n is max
 
 	for (unsigned int i = 2; i < root_of_n; i++) {
-		if (this->tracker_arr_[i]) {
-			for (unsigned int j = i * i; j < this->n_; j = j + i) {	//NTS:	Start value is i^2.
+		if (this->CheckIndex(i-2)) {
+			for (unsigned int j = i * i; j <= this->n_; j = j + i) {	//NTS:	Start value is i^2.
 																	//		This because all composites lower than i^2
 																	//		will have been covered by lower i:s
-				this->SetNonPrime(j);
+				this->SetNonPrime(j-2);
 			}
 		}
 	}
@@ -23,7 +23,7 @@ void SieveErathosthenesCPU::DoSieve() {
 
 //Public-------------------------------------------------------------------------------------------
 SieveErathosthenesCPU::SieveErathosthenesCPU(unsigned int in_n) 
-	: SieveBase(in_n) {
+	: SieveBase(in_n, 2) {
 
 	this->private_timer_.SaveTime();
 
