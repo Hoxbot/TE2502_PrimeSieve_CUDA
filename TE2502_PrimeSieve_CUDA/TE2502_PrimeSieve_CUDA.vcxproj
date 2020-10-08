@@ -42,6 +42,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)resources;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)resources;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -81,14 +85,14 @@
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sieves\sieve_base.cpp" />
-    <ClCompile Include="sieves\sieve_eratosthenes_cpu.cpp" />
-    <ClCompile Include="sieves\stat_handler.cpp" />
+    <ClCompile Include="src\sieves\sieve_base.cpp" />
+    <ClCompile Include="src\sieves\sieve_eratosthenes_cpu.cpp" />
+    <ClCompile Include="src\support\stat_handler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sieves\sieve_base.h" />
-    <ClInclude Include="sieves\sieve_eratosthenes_cpu.h" />
-    <ClInclude Include="sieves\stat_handler.h" />
+    <ClInclude Include="src\sieves\sieve_base.h" />
+    <ClInclude Include="src\sieves\sieve_eratosthenes_cpu.h" />
+    <ClInclude Include="src\support\stat_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

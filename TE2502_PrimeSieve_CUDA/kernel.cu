@@ -12,7 +12,7 @@
 #include <crtdbg.h>
 
 //Sieves
-#include "sieves/sieve_eratosthenes_cpu.h"
+#include "src/sieves/sieve_eratosthenes_cpu.h"
 
 //Misc
 inline void WaitForEnter() {
@@ -26,9 +26,8 @@ int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//---
 
-	SieveErathosthenesCPU EratosthenesA(1000);
-
-	std::cout << EratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
+	SieveErathosthenesCPU eratosthenesA(1000); 
+	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << EratosthenesA.StringifyTrackerArr() << std::endl;
 
 	//---
