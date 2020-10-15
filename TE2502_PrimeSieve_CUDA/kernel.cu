@@ -25,10 +25,16 @@ int main() {
 	//Check for memory leaks at each exit point of the program
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//---
+	std::cout << "<Program Start>" << std::endl;
 
-	SieveErathosthenesCPU eratosthenesA(1000); 
+	std::cout << SIZE_MAX << std::endl;
+	std::cout << UINT_MAX << std::endl;
+
+	SieveErathosthenesCPU eratosthenesA(10);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << EratosthenesA.StringifyTrackerArr() << std::endl;
+
+	//std::cout << ": " << eratosthenesA.IsPrime(2567) << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
@@ -39,7 +45,12 @@ int main() {
         return 1;
     }
 
+	std::cout << "<Program End>" << std::endl;
+
 	WaitForEnter();
 
     return 0;
 }
+
+
+

@@ -38,7 +38,7 @@ void StatHandler::SaveTime() {
 std::string StatHandler::StringifyLapTimes() {
 	std::string ret_str = "";
 
-	ret_str = "Times (ms):\n";
+	ret_str = "Times (microseconds):\n";
 
 	for (unsigned int i = 1; i < this->time_points.size(); i++) {
 		ret_str += std::to_string(i) + ":\t";
@@ -53,7 +53,7 @@ std::string StatHandler::StringifyTotalTime() {
 
 	std::string ret_str = "";
 	
-	ret_str = "Total Time (ms): " + std::to_string(this->ConvertToMicroSeconds(0, (this->time_points.size() - 1)));
+	ret_str = "Total Time (microseconds): " + std::to_string(this->ConvertToMicroSeconds(0, (this->time_points.size() - 1)));
 
 	return ret_str;
 }

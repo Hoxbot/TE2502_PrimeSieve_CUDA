@@ -4,33 +4,28 @@
 #include <string>
 #include <vector>
 
+#include "prime_memory/prime_memory_bool.h"
 #include "../support/stat_handler.h"
 
 class SieveBase {
 private:
-	unsigned int index_offset_ = 0;
-	unsigned int n_alt_ = 0;
+	float VerifyByFile();
 
 protected:
 	unsigned int n_ = 0;
-	bool* tracker_arr_;
+
+	PrimeMemory* mem_class_ptr_ = nullptr;
 
 	StatHandler private_timer_;
 
-	bool CheckIndex(unsigned int in_i);
-
-	void SetNonPrime(unsigned int in_i);
-	void SetPrime(unsigned int in_i);
-
 	virtual void DoSieve() = 0;
-
-	float VerifyByFile();
+	virtual unsigned int IndexToNumber(unsigned int in_i) = 0;
 
 public:
-	SieveBase(unsigned int in_n, unsigned int in_first_val);
+	SieveBase(unsigned int in_n);
 	~SieveBase();
 
-	bool IsPrime(unsigned int in_num);
+	virtual bool IsPrime(unsigned int in_num) = 0;
 
 	std::string StringifyPrimes();
 	std::string StringifyTrackerArr();
@@ -38,6 +33,8 @@ public:
 	std::string StringifyResults(std::string in_title);
 
 	std::vector<int> PrimeVector();
+
+	
 };
 
 #endif // !SIEVE_BASE_H

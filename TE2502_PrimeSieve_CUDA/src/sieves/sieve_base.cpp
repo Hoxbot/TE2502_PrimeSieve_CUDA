@@ -4,18 +4,6 @@
 #include <stdio.h>
 
 //Private------------------------------------------------------------------------------------------
-bool SieveBase::CheckIndex(unsigned int in_i) {
-	return this->tracker_arr_[in_i];
-}
-
-void SieveBase::SetNonPrime(unsigned int in_i) {
-	this->tracker_arr_[in_i] = false;
-}
-
-void SieveBase::SetPrime(unsigned int in_i) {
-	this->tracker_arr_[in_i] = true;
-}
-
 float SieveBase::VerifyByFile() {
 
 	//Constants
@@ -66,7 +54,7 @@ float SieveBase::VerifyByFile() {
 		//->If i != that number, i should not be prime (if it is we log miss)
 		//->If i == that number, i should be prime (if it isn't we log miss)
 		//-->Once i == that number we should read the next number
-		if ((i != prime_from_file) && this->IsPrime(i)) { num_of_misses++; }
+		if ((i != prime_from_file) && this->IsPrime(i)) { num_of_misses++; }	//NTS: IsPrime() is pure virtual
 		else if (i == prime_from_file) {
 			if (!this->IsPrime(i)) { num_of_misses++; }
 			read_next = true;
@@ -84,40 +72,26 @@ float SieveBase::VerifyByFile() {
 }
 
 //Public-------------------------------------------------------------------------------------------
-SieveBase::SieveBase(unsigned int in_n, unsigned int in_first_val) {
+SieveBase::SieveBase(unsigned int in_n) {
+	//Create a memory structure for n numbers
 	this->n_ = in_n;
-	
-	this->index_offset_ = in_first_val;
-	this->n_alt_ = in_n - (in_first_val - 1);
-	
-	this->tracker_arr_ = new bool[this->n_alt_]; //NTS: indexes [0, n-1]
-	
-									   //Start all values as true ("known as primes")
-	for (unsigned int i = 0; i < this->n_alt_; i++) {
-		this->SetPrime(i);
-	}
+	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
 }
 
 SieveBase::~SieveBase() {
-	delete[] this->tracker_arr_;
-}
-
-bool SieveBase::IsPrime(unsigned int in_num) {
-	//Everything outside scope is false
-	if (in_num > this->n_) { return false; }
-	//Otherwise return the stored bool for that value
-	return this->CheckIndex(in_num-this->index_offset_);
+	delete this->mem_class_ptr_;
 }
 
 std::string SieveBase::StringifyPrimes() {
 	//Fix the string
 	std::string ret_str = "";
-	for (unsigned int i = 0; i < this->n_alt_; i++) {
-		if (this->CheckIndex(i)) {
-			ret_str += std::to_string(i+this->index_offset_) + ", ";
+	for (unsigned int i = 0; i < this->n_; i++) {
+		if (this->mem_class_ptr_->CheckIndex(i)) {
+			ret_str += std::to_string(this->IndexToNumber(i)) + ", ";
 		}
 	}
 
+	//Remove the last ", "
 	ret_str.resize(ret_str.size()-2);
 
 	//Return
@@ -127,8 +101,8 @@ std::string SieveBase::StringifyPrimes() {
 std::string SieveBase::StringifyTrackerArr() {
 	//Fix the string
 	std::string ret_str = "";
-	for (unsigned int i = 0; i < this->n_alt_; i++) {
-		ret_str += "[i=" + std::to_string(i) + "]\t:\t(" + std::to_string(i + this->index_offset_) + (this->CheckIndex(i) ? ":T)\n" : ":F)\n");
+	for (unsigned int i = 0; i < this->n_; i++) {
+		ret_str += "[i=" + std::to_string(i) + "]\t:\t(" + std::to_string(this->IndexToNumber(i)) + (this->mem_class_ptr_->CheckIndex(i) ? ":T)\n" : ":F)\n");
 	}
 
 	//Return
@@ -154,21 +128,21 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 
 	//Count number of primes found
 	int num_of_p = 0;
-	for (unsigned int i = 0; i < this->n_alt_; i++) {
-		if (this->CheckIndex(i)) { num_of_p++; }
+	for (unsigned int i = 0; i < this->n_; i++) {
+		if (this->mem_class_ptr_->CheckIndex(i)) { num_of_p++; }
 	}
 
 	//Calculate accuracy and format string
 	float accuracy = this->VerifyByFile();
 	std::string accuracy_str = std::to_string(accuracy);
-	accuracy_str.resize(accuracy_str.size() - 3);
+	accuracy_str.resize(accuracy_str.size() - 3);	//Remove some 0:s
 
 	//Fill fields:
-	ret_str += "Upper Limit 'n':\t" + std::to_string(this->n_) + "\n";
+	ret_str += "Upper Limit 'n':\t" + std::to_string(this->IndexToNumber(this->n_)) + "\n";
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
 	ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
 	ret_str += this->StringifyExecutionTime() + "\n";
-	ret_str += "Identified Primes:\t" + this->StringifyPrimes() + "\n";
+	//ret_str += "Identified Primes:\t" + this->StringifyPrimes() + "\n";
 
 	//Return
 	return ret_str;
@@ -177,9 +151,9 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 std::vector<int> SieveBase::PrimeVector() {
 	std::vector<int> ret_vec;
 
-	for (unsigned int i = 0; i < this->n_alt_; i++) {
-		if (this->CheckIndex(i)) {
-			ret_vec.push_back(i + this->index_offset_);
+	for (unsigned int i = 0; i < this->n_; i++) {
+		if (this->mem_class_ptr_->CheckIndex(i)) {
+			ret_vec.push_back(this->IndexToNumber(i));
 		}
 	}
 
