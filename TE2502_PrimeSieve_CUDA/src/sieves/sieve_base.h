@@ -22,7 +22,7 @@ protected:
 	virtual unsigned int IndexToNumber(unsigned int in_i) = 0;
 
 public:
-	SieveBase(unsigned int in_n);
+	SieveBase(/*unsigned int in_n*/);
 	~SieveBase();
 
 	virtual bool IsPrime(unsigned int in_num) = 0;

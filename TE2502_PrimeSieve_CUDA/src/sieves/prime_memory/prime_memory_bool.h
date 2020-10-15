@@ -5,7 +5,7 @@
 
 class PrimeMemoryBool : public PrimeMemory {
 private:
-	bool* tracker_arr_;
+	bool* tracker_arr_ = nullptr;
 
 public:
 	PrimeMemoryBool(unsigned int in_size);

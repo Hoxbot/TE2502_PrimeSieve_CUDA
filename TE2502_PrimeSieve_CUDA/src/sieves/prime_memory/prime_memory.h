@@ -6,7 +6,7 @@ private:
 
 public:
 	PrimeMemory() {};
-	~PrimeMemory() {};
+	virtual ~PrimeMemory() {};
 
 	virtual bool CheckIndex(unsigned int in_i) = 0;
 

@@ -72,14 +72,14 @@ float SieveBase::VerifyByFile() {
 }
 
 //Public-------------------------------------------------------------------------------------------
-SieveBase::SieveBase(unsigned int in_n) {
+SieveBase::SieveBase(/*unsigned int in_n*/) {
 	//Create a memory structure for n numbers
-	this->n_ = in_n;
-	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
+	//this->n_ = in_n;
+	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
 }
 
 SieveBase::~SieveBase() {
-	delete this->mem_class_ptr_;
+	//delete this->mem_class_ptr_;
 }
 
 std::string SieveBase::StringifyPrimes() {
@@ -138,11 +138,11 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	accuracy_str.resize(accuracy_str.size() - 3);	//Remove some 0:s
 
 	//Fill fields:
-	ret_str += "Upper Limit 'n':\t" + std::to_string(this->IndexToNumber(this->n_)) + "\n";
+	ret_str += "Upper Limit 'n':\t" + std::to_string(this->IndexToNumber(this->n_-1)) + "\n";
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
 	ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
 	ret_str += this->StringifyExecutionTime() + "\n";
-	//ret_str += "Identified Primes:\t" + this->StringifyPrimes() + "\n";
+	ret_str += "Identified Primes:\t" + this->StringifyPrimes() + "\n";
 
 	//Return
 	return ret_str;

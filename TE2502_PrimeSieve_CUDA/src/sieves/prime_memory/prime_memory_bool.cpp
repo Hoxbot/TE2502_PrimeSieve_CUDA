@@ -15,6 +15,7 @@ PrimeMemoryBool::PrimeMemoryBool(unsigned int in_size) {
 
 PrimeMemoryBool::~PrimeMemoryBool() {
 	delete[] this->tracker_arr_;
+	this->tracker_arr_ = nullptr;
 }
 
 bool PrimeMemoryBool::CheckIndex(unsigned int in_i) {
