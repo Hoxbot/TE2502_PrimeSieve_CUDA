@@ -40,7 +40,7 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(unsigned int in_n) {
 	//WIP
 
 	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
-	//this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
+	//this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);	//Something with indexing is off // Also no cuda pause at program end?
 
 	this->private_timer_.SaveTime();
 
