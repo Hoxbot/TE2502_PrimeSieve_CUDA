@@ -5,6 +5,13 @@
 
 //Private------------------------------------------------------------------------------------------
 float SieveBase::VerifyByFile() {
+	//TEST
+	FILE* file_test = nullptr;
+	errno_t error_test;
+	error_test = fopen_s(&file_test, "HERE", "w");
+	if (file_test == nullptr) { return -1.0f; }
+	fclose(file_test);
+	//TEST
 
 	//Constants
 	const char* checkset_path = "resources/primes1_edit.txt";

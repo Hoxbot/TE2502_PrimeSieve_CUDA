@@ -30,9 +30,9 @@ int main() {
 	std::cout << SIZE_MAX << std::endl;
 	std::cout << UINT_MAX << std::endl;
 
-	SieveErathosthenesCPU eratosthenesA(11);
+	SieveErathosthenesCPU eratosthenesA(4);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
-	std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
+	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
 	//std::cout << ": " << eratosthenesA.IsPrime(2567) << std::endl;
 

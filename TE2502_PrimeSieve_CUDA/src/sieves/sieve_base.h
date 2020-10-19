@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "prime_memory/prime_memory_bool.h"
+#include "prime_memory/prime_memory_bit.h"
 #include "../support/stat_handler.h"
 
 class SieveBase {
