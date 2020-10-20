@@ -5,17 +5,17 @@
 
 class SieveErathosthenesCPU : public SieveBase {
 private:
-	unsigned int start_ = 0;
-	unsigned int end_ = 0;
+	size_t start_ = 0;
+	size_t end_ = 0;
 	//unsigned int step_length_ = 1;
 
 	void DoSieve();
-	unsigned int IndexToNumber(unsigned int in_i);
+	size_t IndexToNumber(size_t in_i);
 public:
-	SieveErathosthenesCPU(unsigned int in_n);
+	SieveErathosthenesCPU(size_t in_n);
 	~SieveErathosthenesCPU();
 
-	bool IsPrime(unsigned int in_num);
+	bool IsPrime(size_t in_num);
 };
 
 #endif // !SIEVE_ERATOSTHENES_CPU_H

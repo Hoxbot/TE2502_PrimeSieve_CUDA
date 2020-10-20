@@ -27,6 +27,7 @@ int main() {
 	//---
 	std::cout << "<Program Start>" << std::endl;
 
+	/*
 	std::cout << "UINT_MAX:\t\t" << UINT_MAX << std::endl;
 
 	std::cout << "SIZE_MAX:\t\t" << SIZE_MAX << std::endl; //<- An array cannot be larger (index-wise) than this
@@ -38,9 +39,10 @@ int main() {
 	//int* ptr = new int[(SIZE_MAX / 4)];
 	//int* ptr = new int[(SIZE_MAX/4 + 1)];
 	//delete[] ptr;
+	*/
 
-	//SieveErathosthenesCPU eratosthenesA(50);
-	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
+	SieveErathosthenesCPU eratosthenesA(50);
+	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
 	//std::cout << ": " << eratosthenesA.IsPrime(2567) << std::endl;

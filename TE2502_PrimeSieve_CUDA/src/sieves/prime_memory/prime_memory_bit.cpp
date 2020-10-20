@@ -3,7 +3,7 @@
 //#include <iostream>
 
 //Private------------------------------------------------------------------------------------------
-PrimeMemoryBit::mem_index PrimeMemoryBit::AccessIndex(unsigned int in_i) {
+PrimeMemoryBit::mem_index PrimeMemoryBit::AccessIndex(size_t in_i) {
 	//Create mem_index
 	mem_index ret_i;
 
@@ -16,7 +16,7 @@ PrimeMemoryBit::mem_index PrimeMemoryBit::AccessIndex(unsigned int in_i) {
 }
 
 //Public-------------------------------------------------------------------------------------------
-PrimeMemoryBit::PrimeMemoryBit(unsigned int in_size) {
+PrimeMemoryBit::PrimeMemoryBit(size_t in_size) {
 	
 	//Store the number of intended bits
 	this->num_of_bits_ = in_size;
@@ -30,7 +30,7 @@ PrimeMemoryBit::PrimeMemoryBit(unsigned int in_size) {
 	this->bits_ = new int[this->num_of_ints_];
 
 	//Start all values as true ("known as primes")
-	for (unsigned int i = 0; i < in_size; i++) {
+	for (size_t i = 0; i < in_size; i++) {
 		this->SetPrime(i);
 	}
 }
@@ -40,7 +40,7 @@ PrimeMemoryBit::~PrimeMemoryBit() {
 	this->bits_ = nullptr;
 }
 
-bool PrimeMemoryBit::CheckIndex(unsigned int in_i) {
+bool PrimeMemoryBit::CheckIndex(size_t in_i) {
 	//Return false for anything outside intended storage
 	//if (in_i >= this->num_of_bits_) { return false; }
 
@@ -57,7 +57,7 @@ bool PrimeMemoryBit::CheckIndex(unsigned int in_i) {
 	return ret_bit;
 }
 
-void PrimeMemoryBit::SetNonPrime(unsigned int in_i) {
+void PrimeMemoryBit::SetNonPrime(size_t in_i) {
 	//Return directly for anything outside intended storage
 	//if (in_i >= this->num_of_bits_) { return false; }
 
@@ -68,7 +68,7 @@ void PrimeMemoryBit::SetNonPrime(unsigned int in_i) {
 	this->bits_[m.arr_i] &= ~(true << m.bit_i);
 }
 
-void PrimeMemoryBit::SetPrime(unsigned int in_i) {
+void PrimeMemoryBit::SetPrime(size_t in_i) {
 	//Return directly for anything outside intended storage
 	//if (in_i >= this->num_of_bits_) { return false; }
 

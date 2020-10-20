@@ -94,7 +94,7 @@ SieveBase::~SieveBase() {
 std::string SieveBase::StringifyPrimes() {
 	//Fix the string
 	std::string ret_str = "";
-	for (unsigned int i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->n_; i++) {
 		if (this->mem_class_ptr_->CheckIndex(i)) {
 			ret_str += std::to_string(this->IndexToNumber(i)) + ", ";
 		}
@@ -110,7 +110,7 @@ std::string SieveBase::StringifyPrimes() {
 std::string SieveBase::StringifyTrackerArr() {
 	//Fix the string
 	std::string ret_str = "";
-	for (unsigned int i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->n_; i++) {
 		ret_str += "[i=" + std::to_string(i) + "]\t:\t(" + std::to_string(this->IndexToNumber(i)) + (this->mem_class_ptr_->CheckIndex(i) ? ":T)\n" : ":F)\n");
 	}
 
@@ -137,7 +137,7 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 
 	//Count number of primes found
 	int num_of_p = 0;
-	for (unsigned int i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->n_; i++) {
 		if (this->mem_class_ptr_->CheckIndex(i)) { num_of_p++; }
 	}
 
@@ -157,10 +157,10 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	return ret_str;
 }
 
-std::vector<int> SieveBase::PrimeVector() {
-	std::vector<int> ret_vec;
+std::vector<size_t> SieveBase::PrimeVector() {
+	std::vector<size_t> ret_vec;
 
-	for (unsigned int i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->n_; i++) {
 		if (this->mem_class_ptr_->CheckIndex(i)) {
 			ret_vec.push_back(this->IndexToNumber(i));
 		}

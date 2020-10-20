@@ -8,13 +8,13 @@ private:
 	bool* tracker_arr_ = nullptr;
 
 public:
-	PrimeMemoryBool(unsigned int in_size);
+	PrimeMemoryBool(size_t in_size);
 	~PrimeMemoryBool();
 
-	bool CheckIndex(unsigned int in_i);
+	bool CheckIndex(size_t in_i);
 
-	void SetNonPrime(unsigned int in_i);
-	void SetPrime(unsigned int in_i);
+	void SetNonPrime(size_t in_i);
+	void SetPrime(size_t in_i);
 };
 
 #endif // !PRIME_MEMORY_BOOL_H

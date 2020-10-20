@@ -8,10 +8,10 @@ public:
 	PrimeMemory() {};
 	virtual ~PrimeMemory() {};
 
-	virtual bool CheckIndex(unsigned int in_i) = 0;
+	virtual bool CheckIndex(size_t in_i) = 0;
 
-	virtual void SetNonPrime(unsigned int in_i) = 0;
-	virtual void SetPrime(unsigned int in_i) = 0;
+	virtual void SetNonPrime(size_t in_i) = 0;
+	virtual void SetPrime(size_t in_i) = 0;
 };
 
 #endif // !PRIME_MEMORY_H

@@ -11,9 +11,9 @@ void SieveErathosthenesCPU::DoSieve() {
 															//		we need not go further than the root of n, since:
 															//			if (i > root(n)) => i^2 > n, and n is max
 
-	for (unsigned int i = this->start_; i < root_of_end; i++) {
+	for (size_t i = this->start_; i < root_of_end; i++) {
 		if (this->mem_class_ptr_->CheckIndex(i - this->start_)) {
-			for (unsigned int j = i * i; j <= this->end_; j = j + i) {	//NTS:	Start value is i^2.
+			for (size_t j = i * i; j <= this->end_; j = j + i) {	//NTS:	Start value is i^2.
 																		//		This because all composites lower than i^2
 																		//		will have been covered by lower i:s
 
@@ -25,13 +25,13 @@ void SieveErathosthenesCPU::DoSieve() {
 	}
 }
 
-unsigned int SieveErathosthenesCPU::IndexToNumber(unsigned int in_i) {
+size_t SieveErathosthenesCPU::IndexToNumber(size_t in_i) {
 	return this->start_ + in_i;
 }
 
 
 //Public-------------------------------------------------------------------------------------------
-SieveErathosthenesCPU::SieveErathosthenesCPU(unsigned int in_n) {
+SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n) {
 //	: SieveBase(2, in_n) {
 
 	//WIP
@@ -61,13 +61,13 @@ SieveErathosthenesCPU::~SieveErathosthenesCPU() {
 	this->mem_class_ptr_ = nullptr;
 }
 
-bool SieveErathosthenesCPU::IsPrime(unsigned int in_num) {
+bool SieveErathosthenesCPU::IsPrime(size_t in_num) {
 	//Everything outside scope is false
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
 	//Otherwise return the stored bool for that value
 
 	//WIP
-	unsigned int the_number_index = in_num - this->start_;
+	size_t the_number_index = in_num - this->start_;
 	//WIP
 
 	return this->mem_class_ptr_->CheckIndex(the_number_index);
