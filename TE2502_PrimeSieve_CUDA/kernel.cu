@@ -27,10 +27,10 @@ int main() {
 	//---
 	std::cout << "<Program Start>" << std::endl;
 
-	std::cout << SIZE_MAX << std::endl;
-	std::cout << UINT_MAX << std::endl;
+	//std::cout << SIZE_MAX << std::endl;
+	//std::cout << UINT_MAX << std::endl;
 
-	SieveErathosthenesCPU eratosthenesA(4);
+	SieveErathosthenesCPU eratosthenesA(50);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 

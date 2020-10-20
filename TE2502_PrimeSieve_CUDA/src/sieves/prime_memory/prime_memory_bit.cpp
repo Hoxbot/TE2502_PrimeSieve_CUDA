@@ -1,5 +1,7 @@
 #include "prime_memory_bit.h"
 
+//#include <iostream>
+
 //Private------------------------------------------------------------------------------------------
 PrimeMemoryBit::mem_index PrimeMemoryBit::AccessIndex(unsigned int in_i) {
 	//Create mem_index
@@ -43,6 +45,7 @@ bool PrimeMemoryBit::CheckIndex(unsigned int in_i) {
 	//if (in_i >= this->num_of_bits_) { return false; }
 
 	//Calc array index and bit index
+	//NTS: Add +1 here since the bit buffer isn't indexed like an array?
 	mem_index m = this->AccessIndex(in_i);
 
 	// Create an integer 1		:	0000000...00001
@@ -58,16 +61,20 @@ void PrimeMemoryBit::SetNonPrime(unsigned int in_i) {
 	//Return directly for anything outside intended storage
 	//if (in_i >= this->num_of_bits_) { return false; }
 
-	//Set bit to true (|= is bitwise inclusive OR)
+	//std::cout << "\t>\tMemory Set NonPrime:\t" << in_i << "\n";
+
+	//Set bit to true (&= is bitwise AND, ~is bitwise NOT)
 	mem_index m = this->AccessIndex(in_i);
-	this->bits_[m.arr_i] |= true << m.bit_i;
+	this->bits_[m.arr_i] &= ~(true << m.bit_i);
 }
 
 void PrimeMemoryBit::SetPrime(unsigned int in_i) {
 	//Return directly for anything outside intended storage
 	//if (in_i >= this->num_of_bits_) { return false; }
 
+	//std::cout << "\t>\tMemory Set Prime:\t" << in_i << "\n";
+
 	//Set bit to false (|= is bitwise inclusive OR)
 	mem_index m = this->AccessIndex(in_i);
-	this->bits_[m.arr_i] |= false << m.bit_i;
+	this->bits_[m.arr_i] |= true << m.bit_i;
 }

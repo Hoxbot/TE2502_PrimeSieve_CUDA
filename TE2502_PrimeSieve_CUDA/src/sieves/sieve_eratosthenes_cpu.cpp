@@ -1,5 +1,7 @@
 #include "sieve_eratosthenes_cpu.h"
 
+//#include <iostream>
+
 //Private------------------------------------------------------------------------------------------
 void SieveErathosthenesCPU::DoSieve() {
 	unsigned int root_of_end = std::sqrt(this->end_) + 1;	//NTS:	As noted in the following comment, all composite numbers
@@ -14,6 +16,9 @@ void SieveErathosthenesCPU::DoSieve() {
 			for (unsigned int j = i * i; j <= this->end_; j = j + i) {	//NTS:	Start value is i^2.
 																		//		This because all composites lower than i^2
 																		//		will have been covered by lower i:s
+
+				//std::cout << "\tSieve Set NonPrime:\t" << j << "\n";
+
 				this->mem_class_ptr_->SetNonPrime(j - this->start_);
 			}
 		}
@@ -39,8 +44,8 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(unsigned int in_n) {
 	this->n_ = this->end_ - this->start_ + 1; //+1 because it's inclusive: [start, end]
 	//WIP
 
-	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
-	//this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);	//Something with indexing is off // Also no cuda pause at program end?
+	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
+	this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);	//Something with indexing is off
 
 	this->private_timer_.SaveTime();
 
