@@ -78,3 +78,7 @@ void PrimeMemoryBit::SetPrime(size_t in_i) {
 	mem_index m = this->AccessIndex(in_i);
 	this->bits_[m.arr_i] |= true << m.bit_i;
 }
+
+size_t PrimeMemoryBit::BytesAllocated() {
+	return this->num_of_ints_ * sizeof(int);
+}

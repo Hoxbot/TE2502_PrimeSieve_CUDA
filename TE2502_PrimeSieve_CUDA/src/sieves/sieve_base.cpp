@@ -81,14 +81,21 @@ float SieveBase::VerifyByFile() {
 }
 
 //Public-------------------------------------------------------------------------------------------
-SieveBase::SieveBase(/*unsigned int in_n*/) {
-	//Create a memory structure for n numbers
-	//this->n_ = in_n;
-	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
+SieveBase::SieveBase(size_t in_start, size_t in_end) {
+	//Calculate the number of numbers in span
+	this->start_ = in_start;
+	this->end_ = in_end;
+
+	this->n_ = this->end_ - this->start_ + 1; //+1 because it's inclusive: [start, end]
 }
 
 SieveBase::~SieveBase() {
-	//delete this->mem_class_ptr_;
+	/*
+	if (this->mem_class_ptr != nullptr) {
+		delete this->mem_class_ptr_;
+		this->mem_class_ptr_ = nullptr;
+	}
+	*/
 }
 
 std::string SieveBase::StringifyPrimes() {

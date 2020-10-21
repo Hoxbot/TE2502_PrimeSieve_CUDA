@@ -31,21 +31,11 @@ size_t SieveErathosthenesCPU::IndexToNumber(size_t in_i) {
 
 
 //Public-------------------------------------------------------------------------------------------
-SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n) {
-//	: SieveBase(2, in_n) {
-
-	//WIP
-	//Calc start number
-	//Calc array size dependant on start, max and step length
-
-	this->start_ = 2;
-	this->end_ = in_n;
-
-	this->n_ = this->end_ - this->start_ + 1; //+1 because it's inclusive: [start, end]
-	//WIP
+SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
+	: SieveBase(2, in_n) {
 
 	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
-	this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);	//Something with indexing is off
+	this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
 
 	this->private_timer_.SaveTime();
 
@@ -56,9 +46,10 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n) {
 }
 
 SieveErathosthenesCPU::~SieveErathosthenesCPU() {
-	//Calls base destructor on auto
-	delete this->mem_class_ptr_;
-	this->mem_class_ptr_ = nullptr;
+	if (this->mem_class_ptr_ != nullptr) {
+		delete this->mem_class_ptr_;
+		this->mem_class_ptr_ = nullptr;
+	}
 }
 
 bool SieveErathosthenesCPU::IsPrime(size_t in_num) {
@@ -66,9 +57,9 @@ bool SieveErathosthenesCPU::IsPrime(size_t in_num) {
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
 	//Otherwise return the stored bool for that value
 
-	//WIP
+	//Offset number to correct index
 	size_t the_number_index = in_num - this->start_;
-	//WIP
 
+	//Return
 	return this->mem_class_ptr_->CheckIndex(the_number_index);
 }

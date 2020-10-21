@@ -5,8 +5,8 @@
 
 class SieveErathosthenesCPU : public SieveBase {
 private:
-	size_t start_ = 0;
-	size_t end_ = 0;
+	//size_t start_ = 0;
+	//size_t end_ = 0;
 	//unsigned int step_length_ = 1;
 
 	void DoSieve();

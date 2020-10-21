@@ -5,6 +5,7 @@
 
 class PrimeMemoryBool : public PrimeMemory {
 private:
+	size_t arr_size_ = 0;
 	bool* tracker_arr_ = nullptr;
 
 public:
@@ -15,6 +16,8 @@ public:
 
 	void SetNonPrime(size_t in_i);
 	void SetPrime(size_t in_i);
+
+	size_t BytesAllocated();
 };
 
 #endif // !PRIME_MEMORY_BOOL_H

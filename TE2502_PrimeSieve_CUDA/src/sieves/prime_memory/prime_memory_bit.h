@@ -24,6 +24,8 @@ public:
 
 	void SetNonPrime(size_t in_i);
 	void SetPrime(size_t in_i);
+
+	size_t BytesAllocated();
 };
 
 #endif // !PRIME_MEMORY_BIT_H

@@ -13,6 +13,9 @@ private:
 	float VerifyByFile();
 
 protected:
+	size_t start_ = 0;
+	size_t end_ = 0;
+
 	size_t n_ = 0;
 
 	PrimeMemory* mem_class_ptr_ = nullptr;
@@ -23,7 +26,7 @@ protected:
 	virtual size_t IndexToNumber(size_t in_i) = 0;
 
 public:
-	SieveBase(/*unsigned int in_n*/);
+	SieveBase(size_t in_start, size_t in_end);
 	~SieveBase();
 
 	virtual bool IsPrime(size_t in_num) = 0;

@@ -27,19 +27,15 @@ int main() {
 	//---
 	std::cout << "<Program Start>" << std::endl;
 
-	/*
-	std::cout << "UINT_MAX:\t\t" << UINT_MAX << std::endl;
+	cudaDeviceProp prop;
+	cudaGetDeviceProperties(&prop, 0);
+	std::cout 
+		<< "\t---CPU SIDE---\n"
+		<< "\tMax allocation capacity (bytes):\t" << SIZE_MAX << "\n"
+		<< "\t---CUDA SIDE---\n"
+		<< "\tGlobal memory capacity (bytes):\t" << prop.totalGlobalMem << "\n"
+		<< "\tShared memory capacity (bytes):\t" << prop.sharedMemPerBlock << "\n";
 
-	std::cout << "SIZE_MAX:\t\t" << SIZE_MAX << std::endl; //<- An array cannot be larger (index-wise) than this
-	std::cout << "int[SIZE_MAX] bytes:\t" << (SIZE_MAX * 4) << std::endl;
-	std::cout << "int[SIZE_MAX] bits:\t" << (SIZE_MAX * 4 * 8) << std::endl;
-
-	std::cout << "SIZE_MAX+10:\t\t" << SIZE_MAX+10 << std::endl;
-
-	//int* ptr = new int[(SIZE_MAX / 4)];
-	//int* ptr = new int[(SIZE_MAX/4 + 1)];
-	//delete[] ptr;
-	*/
 
 	SieveErathosthenesCPU eratosthenesA(50);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
