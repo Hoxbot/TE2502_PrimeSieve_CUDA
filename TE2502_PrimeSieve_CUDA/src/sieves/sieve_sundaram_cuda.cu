@@ -1,6 +1,20 @@
 #include "sieve_sundaram_cuda.cuh"
 
+#include <iostream>
+
 //CUDA---------------------------------------------------------------------------------------------
+void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func) {
+	if (in_err != cudaSuccess) {
+		std::cerr << ("CUDA Error: " + in_msg + " in " + in_func + "\n");
+	}
+}
+
+__global__ void SundaramKernel(size_t in_start, size_t in_end, void * in_device_memory) {
+	
+	//WORKING HERE
+
+
+}
 
 //Private------------------------------------------------------------------------------------------
 void SieveSundaramCUDA::AllocateGPUMemory() {
@@ -81,6 +95,29 @@ void SieveSundaramCUDA::DownloadMemory() {
 
 }
 
+void SieveSundaramCUDA::LaunchKernel() {
+	// Launch a kernel on the GPU with one thread for each element.
+	//	->	block
+	//	->	threads per block (max 1024)
+	//	->	size of shared memory
+	SundaramKernel <<<1, 50/*VERY TEMP*/, 50/*VERY TEMP*/>>> (this->start_, this->end_, this->device_mem_ptr_);
+	
+	// Check for any errors launching the kernel
+	CUDAErrorOutput(
+		cudaGetLastError(),
+		"cudaGetLastError()",
+		__FUNCTION__
+	);
+
+	// cudaDeviceSynchronize waits for the kernel to finish, and returns
+	// any errors encountered during the launch.
+	CUDAErrorOutput(
+		cudaDeviceSynchronize(),
+		"cudaDeviceSynchronize()",
+		__FUNCTION__
+	);
+}
+
 void SieveSundaramCUDA::DoSieve() {
 
 	//Allocate
@@ -90,7 +127,7 @@ void SieveSundaramCUDA::DoSieve() {
 	this->UploadMemory();
 
 	//Launch work-groups
-	//WIP
+	this->LaunchKernel();
 
 	//Download
 	this->DownloadMemory();

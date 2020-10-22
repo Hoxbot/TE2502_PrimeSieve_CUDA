@@ -6,10 +6,11 @@
 
 #include "sieve_base.h"
 
-//CUDA Functions here
+//CUDA Stuff
+//Helper
 void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func);
-
-__global__ void SundaramKernel(size_t in_start, size_t in_end, bool* device_memory);
+//Kernels
+__global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_memory);
 
 //Class
 class SieveSundaramCUDA : public SieveBase {
@@ -23,6 +24,7 @@ private:
 	void DeallocateGPUMemory();
 	void UploadMemory();
 	void DownloadMemory();
+	void LaunchKernel();
 
 	void DoSieve();
 	size_t IndexToNumber(size_t in_i);
