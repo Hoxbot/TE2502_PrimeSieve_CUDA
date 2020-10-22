@@ -20,6 +20,14 @@ PrimeMemoryBool::~PrimeMemoryBool() {
 	this->tracker_arr_ = nullptr;
 }
 
+void* PrimeMemoryBool::getMemPtr() {
+	return this->tracker_arr_;
+}
+
+size_t PrimeMemoryBool::BytesAllocated() {
+	return this->arr_size_ * sizeof(bool);
+}
+
 bool PrimeMemoryBool::CheckIndex(size_t in_i) {
 	return this->tracker_arr_[in_i];
 }
@@ -32,6 +40,4 @@ void PrimeMemoryBool::SetPrime(size_t in_i) {
 	this->tracker_arr_[in_i] = true;
 }
 
-size_t PrimeMemoryBool::BytesAllocated() {
-	return this->arr_size_ * sizeof(bool);
-}
+

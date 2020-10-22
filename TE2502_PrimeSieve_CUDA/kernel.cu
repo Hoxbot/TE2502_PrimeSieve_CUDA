@@ -33,8 +33,8 @@ int main() {
 		<< "\t---CPU SIDE---\n"
 		<< "\tMax allocation capacity (bytes):\t" << SIZE_MAX << "\n"
 		<< "\t---CUDA SIDE---\n"
-		<< "\tGlobal memory capacity (bytes):\t" << prop.totalGlobalMem << "\n"
-		<< "\tShared memory capacity (bytes):\t" << prop.sharedMemPerBlock << "\n";
+		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
+		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n";
 
 
 	SieveErathosthenesCPU eratosthenesA(50);

@@ -2,9 +2,8 @@
 
 //CUDA---------------------------------------------------------------------------------------------
 
-
 //Private------------------------------------------------------------------------------------------
-void SieveSundaramCUDA::UploadMemory() {
+void SieveSundaramCUDA::AllocateGPUMemory() {
 	//CUDA Memory Notes:
 	// A single CUDA Block can run 1024 threads.
 	// Each block shares:
@@ -21,38 +20,83 @@ void SieveSundaramCUDA::UploadMemory() {
 	//	Shared memory capacity (bytes): 49152
 
 
-	//Step 0: 
-	//NTS: Do we benefit from contious allocation?
+	//Step 0.1: 
+	// NTS: Do we benefit from contious allocation?
+
+	//Step 0.2:
+	// NTS: For capacities over the GPU Global capacity
+	//	> Use pointers into the array
+	//	> Save neccesary numerical indexing?
 
 
-	//Step 1: Allocate memory on device
-	size_t num_of_bytes = this->mem_class_ptr_->BytesAllocated();
+	//Allocate memory on device
 	CUDAErrorOutput(
-		cudaMalloc((void**)&(this->device_mem_ptr_), num_of_bytes),
+		cudaMalloc(
+			(void**)&(this->device_mem_ptr_),
+			this->mem_class_ptr_->BytesAllocated()
+		),
 		"cudaMalloc()", __FUNCTION__
 	);
+}
 
-	//Step 2: Copy data to memory
+void SieveSundaramCUDA::DeallocateGPUMemory() {
+	//Deallocate the memory on device
+	CUDAErrorOutput(
+		cudaFree(this->device_arr_ptr_),
+		"cudaFree()", __FUNCTION__
+	);
+	this->device_arr_ptr_ = nullptr;
+}
+
+void SieveSundaramCUDA::UploadMemory() {
+	//Copy data to memory
 	//NTS: The booleans must be true, but is an upload needed?
 	//Is it enough to allocate, alter in the kernel and download?
 	CUDAErrorOutput(
 		cudaMemcpy(
-			this->device_mem_ptr_,			//Target
-			/*TBA*/,						//Source	//Working here
-			num_of_bytes,					//Byte count
-			cudaMemcpyHostToDevice			//Transfer type
+			this->device_mem_ptr_,					//Target
+			this->mem_class_ptr_->getMemPtr(),		//Source
+			this->mem_class_ptr_->BytesAllocated(),	//Byte count
+			cudaMemcpyHostToDevice					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
 	);
 }
 
 void SieveSundaramCUDA::DownloadMemory() {
-	//WIP
+
+	//NTS: Might need to be altered to dowload to a specific
+	// array index and forward
+
+	//Download data into memory structure
+	CUDAErrorOutput(
+		cudaMemcpy(
+			this->mem_class_ptr_->getMemPtr(),		//Target
+			this->device_mem_ptr_,					//Source
+			this->mem_class_ptr_->BytesAllocated(),	//Byte count
+			cudaMemcpyDeviceToHost					//Transfer type
+		),
+		"cudaMemcpy()", __FUNCTION__
+	);
+
 }
 
 void SieveSundaramCUDA::DoSieve() {
 
+	//Allocate
+	this->AllocateGPUMemory();
+
+	//Upload
+	this->UploadMemory();
+
+	//Launch work-groups
 	//WIP
+
+	//Download
+	this->DownloadMemory();
+
+	//Deallocate
+	this->DeallocateGPUMemory();
 
 }
 

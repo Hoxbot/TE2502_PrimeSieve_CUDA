@@ -19,8 +19,11 @@ private:
 
 	void* device_mem_ptr_ = nullptr;
 
+	void AllocateGPUMemory();
+	void DeallocateGPUMemory();
 	void UploadMemory();
 	void DownloadMemory();
+
 	void DoSieve();
 	size_t IndexToNumber(size_t in_i);
 public:

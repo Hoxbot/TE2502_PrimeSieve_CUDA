@@ -12,12 +12,13 @@ public:
 	PrimeMemoryBool(size_t in_size);
 	~PrimeMemoryBool();
 
+	void* getMemPtr();
+	size_t BytesAllocated();
+
 	bool CheckIndex(size_t in_i);
 
 	void SetNonPrime(size_t in_i);
 	void SetPrime(size_t in_i);
-
-	size_t BytesAllocated();
 };
 
 #endif // !PRIME_MEMORY_BOOL_H

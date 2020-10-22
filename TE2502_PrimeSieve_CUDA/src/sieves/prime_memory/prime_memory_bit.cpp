@@ -40,6 +40,15 @@ PrimeMemoryBit::~PrimeMemoryBit() {
 	this->bits_ = nullptr;
 }
 
+void* PrimeMemoryBit::getMemPtr() {
+	return this->bits_;
+}
+
+size_t PrimeMemoryBit::BytesAllocated() {
+	return this->num_of_ints_ * sizeof(int);
+}
+
+
 bool PrimeMemoryBit::CheckIndex(size_t in_i) {
 	//Return false for anything outside intended storage
 	//if (in_i >= this->num_of_bits_) { return false; }
@@ -79,6 +88,3 @@ void PrimeMemoryBit::SetPrime(size_t in_i) {
 	this->bits_[m.arr_i] |= true << m.bit_i;
 }
 
-size_t PrimeMemoryBit::BytesAllocated() {
-	return this->num_of_ints_ * sizeof(int);
-}
