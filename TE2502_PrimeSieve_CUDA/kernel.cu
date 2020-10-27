@@ -13,6 +13,7 @@
 
 //Sieves
 #include "src/sieves/sieve_eratosthenes_cpu.h"
+#include "src/sieves/sieve_sundaram_cuda.cuh"
 
 //Misc
 inline void WaitForEnter() {
@@ -37,9 +38,14 @@ int main() {
 		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n";
 
 
-	SieveErathosthenesCPU eratosthenesA(50);
-	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
+	//SieveErathosthenesCPU eratosthenesA(50);
+	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
+
+	SieveSundaramCUDA sundaramA(10);
+	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
+	std::cout << sundaramA.StringifyTrackerArr() << std::endl;
+	
 
 	//std::cout << ": " << eratosthenesA.IsPrime(2567) << std::endl;
 

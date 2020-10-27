@@ -108,7 +108,7 @@ std::string SieveBase::StringifyPrimes() {
 	}
 
 	//Remove the last ", "
-	ret_str.resize(ret_str.size()-2);
+	if (ret_str.size() >= 2) { ret_str.resize(ret_str.size() - 2); }
 
 	//Return
 	return ret_str;

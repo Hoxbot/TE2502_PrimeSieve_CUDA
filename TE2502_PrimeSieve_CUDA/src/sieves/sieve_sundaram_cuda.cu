@@ -9,10 +9,20 @@ void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func
 	}
 }
 
-__global__ void SundaramKernel(size_t in_start, size_t in_end, void * in_device_memory) {
+__global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_memory) {
 	
 	//WORKING HERE
 
+	//For now, just set all to false. Just to test if cuda uploads as it should.
+
+	//Get the thread's index
+	unsigned int index = blockIdx.x*blockDim.x + threadIdx.x;
+
+	//TEMP: Set that array possition to false
+	bool* mem_ptr = reinterpret_cast<bool*>(in_device_memory);
+	mem_ptr[index] = false;
+	//Wait for all kernels to update
+	__syncthreads();
 
 }
 
@@ -56,10 +66,10 @@ void SieveSundaramCUDA::AllocateGPUMemory() {
 void SieveSundaramCUDA::DeallocateGPUMemory() {
 	//Deallocate the memory on device
 	CUDAErrorOutput(
-		cudaFree(this->device_arr_ptr_),
+		cudaFree(this->device_mem_ptr_),
 		"cudaFree()", __FUNCTION__
 	);
-	this->device_arr_ptr_ = nullptr;
+	this->device_mem_ptr_ = nullptr;
 }
 
 void SieveSundaramCUDA::UploadMemory() {
@@ -98,10 +108,14 @@ void SieveSundaramCUDA::DownloadMemory() {
 void SieveSundaramCUDA::LaunchKernel() {
 	// Launch a kernel on the GPU with one thread for each element.
 	//	->	block
+	size_t blocks = 1;
 	//	->	threads per block (max 1024)
+	size_t threads = this->n_;
 	//	->	size of shared memory
-	SundaramKernel <<<1, 50/*VERY TEMP*/, 50/*VERY TEMP*/>>> (this->start_, this->end_, this->device_mem_ptr_);
-	
+	size_t bytes = this->mem_class_ptr_->BytesAllocated();
+	//Launch
+	SundaramKernel<<<blocks, threads, bytes>>>(this->start_, this->end_, this->device_mem_ptr_);
+
 	// Check for any errors launching the kernel
 	CUDAErrorOutput(
 		cudaGetLastError(),
@@ -145,8 +159,8 @@ size_t SieveSundaramCUDA::IndexToNumber(size_t in_i) {
 SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
 	: SieveBase(1, in_n) {
 
-	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
-	this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
+	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
+	//this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
 
 	this->private_timer_.SaveTime();
 
@@ -157,7 +171,7 @@ SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
 }
 
 SieveSundaramCUDA::~SieveSundaramCUDA() {
-	if (this->mem_class_ptr != nullptr) {
+	if (this->mem_class_ptr_ != nullptr) {
 		delete this->mem_class_ptr_;
 		this->mem_class_ptr_ = nullptr;
 	}	
