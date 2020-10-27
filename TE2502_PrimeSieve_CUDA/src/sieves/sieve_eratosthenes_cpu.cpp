@@ -37,6 +37,9 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
 	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
 	this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
 
+	//Eratosthenes starts all as primes
+	this->mem_class_ptr_->SetAllPrime();
+
 	this->private_timer_.SaveTime();
 
 	this->DoSieve();

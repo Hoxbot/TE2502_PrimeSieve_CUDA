@@ -28,11 +28,6 @@ PrimeMemoryBit::PrimeMemoryBit(size_t in_size) {
 
 	//Allocate space
 	this->bits_ = new int[this->num_of_ints_];
-
-	//Start all values as true ("known as primes")
-	for (size_t i = 0; i < in_size; i++) {
-		this->SetPrime(i);
-	}
 }
 
 PrimeMemoryBit::~PrimeMemoryBit() {
@@ -86,5 +81,19 @@ void PrimeMemoryBit::SetPrime(size_t in_i) {
 	//Set bit to false (|= is bitwise inclusive OR)
 	mem_index m = this->AccessIndex(in_i);
 	this->bits_[m.arr_i] |= true << m.bit_i;
+}
+
+void PrimeMemoryBit::SetAllNonPrime() {
+	//Start all values as true ("known as primes")
+	for (size_t i = 0; i < this->num_of_bits_; i++) {
+		this->SetNonPrime(i);
+	}
+}
+
+void PrimeMemoryBit::SetAllPrime() {
+	//Start all values as true ("known as primes")
+	for (size_t i = 0; i < this->num_of_bits_; i++) {
+		this->SetPrime(i);
+	}
 }
 

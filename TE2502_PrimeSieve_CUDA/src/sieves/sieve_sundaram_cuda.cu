@@ -10,17 +10,18 @@ void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func
 }
 
 __global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_memory) {
-	
-	//WORKING HERE
 
-	//For now, just set all to false. Just to test if cuda uploads as it should.
+	//Cast to bool	//NTS: Preferably we do this on cpu side, and only once
+	bool* mem_ptr = reinterpret_cast<bool*>(in_device_memory);
 
 	//Get the thread's index
-	unsigned int index = blockIdx.x*blockDim.x + threadIdx.x;
+	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 
-	//TEMP: Set that array possition to false
-	bool* mem_ptr = reinterpret_cast<bool*>(in_device_memory);
-	mem_ptr[index] = false;
+	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
+	for (size_t j = i; (i + j + 2*i*j) <= in_end; j++) {
+		mem_ptr[(i + j + 2 * i*j)] = false;
+	}
+
 	//Wait for all kernels to update
 	__syncthreads();
 
@@ -152,21 +153,26 @@ void SieveSundaramCUDA::DoSieve() {
 }
 
 size_t SieveSundaramCUDA::IndexToNumber(size_t in_i) {
-	return this->start_ + in_i;
+	return 2*(this->start_ + in_i) + 1;
 }
 
 //Public-------------------------------------------------------------------------------------------
 SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
-	: SieveBase(1, in_n) {
+	: SieveBase(0, (((in_n-2)/2)+1) ) {
+	//NTS: +1 since we round up
 
 	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
 	//this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
 
+	//Sundaram starts all as primes
+	this->mem_class_ptr_->SetAllPrime();
+
 	this->private_timer_.SaveTime();
 
-	this->DoSieve();
+	//this->DoSieve();
 
 	this->private_timer_.SaveTime();
+
 
 }
 
@@ -183,7 +189,7 @@ bool SieveSundaramCUDA::IsPrime(size_t in_num) {
 	//Otherwise return the stored bool for that value
 
 	//Offset number to correct index
-	size_t the_number_index = in_num - this->start_;
+	size_t the_number_index = (in_num - 1) / 2; //NTS: study division here
 
 	//Return
 	return this->mem_class_ptr_->CheckIndex(the_number_index);

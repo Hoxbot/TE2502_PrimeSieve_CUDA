@@ -42,12 +42,21 @@ int main() {
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(10);
-	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
+	SieveSundaramCUDA sundaramA(11);
+	//std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU 11") << std::endl;
 	std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 	
+	SieveSundaramCUDA sundaramB(12);
+	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU 12") << std::endl;
+	std::cout << sundaramB.StringifyTrackerArr() << std::endl;
 
-	//std::cout << ": " << eratosthenesA.IsPrime(2567) << std::endl;
+	SieveSundaramCUDA sundaramC(13);
+	//std::cout << sundaramC.StringifyResults("SUNDARAM GPGPU 13") << std::endl;
+	std::cout << sundaramC.StringifyTrackerArr() << std::endl;
+
+	SieveSundaramCUDA sundaramD(14);
+	//std::cout << sundaramD.StringifyResults("SUNDARAM GPGPU 14") << std::endl;
+	std::cout << sundaramD.StringifyTrackerArr() << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

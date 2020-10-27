@@ -19,6 +19,9 @@ public:
 
 	void SetNonPrime(size_t in_i);
 	void SetPrime(size_t in_i);
+
+	void SetAllNonPrime();
+	void SetAllPrime();
 };
 
 #endif // !PRIME_MEMORY_BOOL_H
