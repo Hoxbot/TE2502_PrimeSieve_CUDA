@@ -22,6 +22,7 @@ public:
 
 	void* getMemPtr();
 	size_t BytesAllocated();
+	size_t NumberCapacity();
 
 	bool CheckIndex(size_t in_i);
 

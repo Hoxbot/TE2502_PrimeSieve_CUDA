@@ -10,6 +10,7 @@ public:
 
 	virtual void* getMemPtr() = 0;
 	virtual size_t BytesAllocated() = 0;
+	virtual size_t NumberCapacity() = 0;
 
 	virtual bool CheckIndex(size_t in_i) = 0;
 

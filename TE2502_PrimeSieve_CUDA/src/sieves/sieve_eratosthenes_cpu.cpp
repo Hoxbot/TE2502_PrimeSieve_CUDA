@@ -34,8 +34,11 @@ size_t SieveErathosthenesCPU::IndexToNumber(size_t in_i) {
 SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
 	: SieveBase(2, in_n) {
 
-	//this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
-	this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
+	//Determine memory capacity needed
+	size_t mem_size = in_n - 2 + 1; //+1 because it's inclusive: [start, end]
+
+	//this->mem_class_ptr_ = new PrimeMemoryBool(mem_size);
+	this->mem_class_ptr_ = new PrimeMemoryBit(mem_size);
 
 	//Eratosthenes starts all as primes
 	this->mem_class_ptr_->SetAllPrime();

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <stdio.h>
 
+#include <iostream>
+
 //Private------------------------------------------------------------------------------------------
 float SieveBase::VerifyByFile() {
 	/*
@@ -19,8 +21,8 @@ float SieveBase::VerifyByFile() {
 	const char* checkset_path = "resources/primes1_edit.txt";
 	const int checkset_max = 15485863;
 
-	//Return if n too big
-	if (this->n_ > checkset_max) { return -1.0f; }
+	//Return if end number too big
+	if (this->end_ > checkset_max) { return -1.0f; }
 
 	//Open file
 	FILE* file_ptr = nullptr;
@@ -34,7 +36,7 @@ float SieveBase::VerifyByFile() {
 	bool read_next = true;
 	unsigned int prime_from_file = 0;
 	unsigned int num_of_misses = 0;
-	for (unsigned int i = 2; i <= this->n_; i++) {
+	for (unsigned int i = 1; i <= this->end_; i++) {
 		//Read the next number from the file
 		if (read_next) {
 			char c = ' ';
@@ -59,6 +61,8 @@ float SieveBase::VerifyByFile() {
 			read_next = false;
 		}
 
+		std::cout << "Checking:\t" << i << "\t(" << this->IsPrime(i) << ")\n";
+
 		//Compare i to the number from the file
 		//->If i != that number, i should not be prime (if it is we log miss)
 		//->If i == that number, i should be prime (if it isn't we log miss)
@@ -74,7 +78,8 @@ float SieveBase::VerifyByFile() {
 	fclose(file_ptr);
 
 	//Calculate how many percent of the numbers where identified correctly
-	float percentage_correct = (1.0f - ((float)num_of_misses / (float)(this->n_ - 1)))*100;
+	unsigned int nums_in_memory = this->mem_class_ptr_->NumberCapacity();
+	float percentage_correct = (1.0f - ((float)num_of_misses / (float)nums_in_memory))*100;
 
 	//Return
 	return percentage_correct;
@@ -85,8 +90,7 @@ SieveBase::SieveBase(size_t in_start, size_t in_end) {
 	//Calculate the number of numbers in span
 	this->start_ = in_start;
 	this->end_ = in_end;
-
-	this->n_ = this->end_ - this->start_ + 1; //+1 because it's inclusive: [start, end]
+	//this->mem_size_ = in_mem_size;
 }
 
 SieveBase::~SieveBase() {
@@ -99,9 +103,9 @@ SieveBase::~SieveBase() {
 }
 
 std::string SieveBase::StringifyPrimes() {
-	//Fix the string
+	//Fix the string for every index in memory
 	std::string ret_str = "";
-	for (size_t i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->mem_class_ptr_->NumberCapacity(); i++) {
 		if (this->mem_class_ptr_->CheckIndex(i)) {
 			ret_str += std::to_string(this->IndexToNumber(i)) + ", ";
 		}
@@ -117,7 +121,7 @@ std::string SieveBase::StringifyPrimes() {
 std::string SieveBase::StringifyTrackerArr() {
 	//Fix the string
 	std::string ret_str = "";
-	for (size_t i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->mem_class_ptr_->NumberCapacity(); i++) {
 		ret_str += "[i=" + std::to_string(i) + "]\t:\t(" + std::to_string(this->IndexToNumber(i)) + (this->mem_class_ptr_->CheckIndex(i) ? ":T)\n" : ":F)\n");
 	}
 
@@ -142,9 +146,9 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	//Set title
 	ret_str += "---" + in_title + "---\n";
 
-	//Count number of primes found
+	//Loop over memory, count number of primes found
 	int num_of_p = 0;
-	for (size_t i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->mem_class_ptr_->NumberCapacity(); i++) {
 		if (this->mem_class_ptr_->CheckIndex(i)) { num_of_p++; }
 	}
 
@@ -154,11 +158,12 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	accuracy_str.resize(accuracy_str.size() - 3);	//Remove some 0:s
 
 	//Fill fields:
-	ret_str += "Upper Limit 'n':\t" + std::to_string(this->IndexToNumber(this->n_-1)) + "\n";
+	ret_str += "Range:\t\t\t[" + std::to_string(this->start_) + ", " + std::to_string(this->end_) + "]\n";
+	ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
 	ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
 	ret_str += this->StringifyExecutionTime() + "\n";
-	ret_str += "Identified Primes:\t" + this->StringifyPrimes() + "\n";
+	ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
 
 	//Return
 	return ret_str;
@@ -167,7 +172,7 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 std::vector<size_t> SieveBase::PrimeVector() {
 	std::vector<size_t> ret_vec;
 
-	for (size_t i = 0; i < this->n_; i++) {
+	for (size_t i = 0; i < this->mem_class_ptr_->NumberCapacity(); i++) {
 		if (this->mem_class_ptr_->CheckIndex(i)) {
 			ret_vec.push_back(this->IndexToNumber(i));
 		}

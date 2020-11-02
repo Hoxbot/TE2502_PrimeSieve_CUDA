@@ -35,28 +35,16 @@ int main() {
 		<< "\tMax allocation capacity (bytes):\t" << SIZE_MAX << "\n"
 		<< "\t---CUDA SIDE---\n"
 		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
-		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n";
+		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n\n";
 
 
 	//SieveErathosthenesCPU eratosthenesA(50);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(11);
-	//std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU 11") << std::endl;
+	SieveSundaramCUDA sundaramA(20);
+	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	std::cout << sundaramA.StringifyTrackerArr() << std::endl;
-	
-	SieveSundaramCUDA sundaramB(12);
-	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU 12") << std::endl;
-	std::cout << sundaramB.StringifyTrackerArr() << std::endl;
-
-	SieveSundaramCUDA sundaramC(13);
-	//std::cout << sundaramC.StringifyResults("SUNDARAM GPGPU 13") << std::endl;
-	std::cout << sundaramC.StringifyTrackerArr() << std::endl;
-
-	SieveSundaramCUDA sundaramD(14);
-	//std::cout << sundaramD.StringifyResults("SUNDARAM GPGPU 14") << std::endl;
-	std::cout << sundaramD.StringifyTrackerArr() << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

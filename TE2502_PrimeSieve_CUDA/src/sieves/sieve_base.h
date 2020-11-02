@@ -15,8 +15,7 @@ private:
 protected:
 	size_t start_ = 0;
 	size_t end_ = 0;
-
-	size_t n_ = 0;
+	//size_t mem_size_ = 0;
 
 	PrimeMemory* mem_class_ptr_ = nullptr;
 

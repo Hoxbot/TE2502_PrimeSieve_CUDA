@@ -23,6 +23,10 @@ size_t PrimeMemoryBool::BytesAllocated() {
 	return this->arr_size_ * sizeof(bool);
 }
 
+size_t PrimeMemoryBool::NumberCapacity() {
+	return this->arr_size_;
+}
+
 bool PrimeMemoryBool::CheckIndex(size_t in_i) {
 	return this->tracker_arr_[in_i];
 }

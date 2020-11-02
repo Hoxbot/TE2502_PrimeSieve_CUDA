@@ -17,9 +17,16 @@ __global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_m
 	//Get the thread's index
 	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 
+	//First cuda thread should have id 0, so we need to offset by starting value
+	i += in_start;
+
+	//mem_ptr[in_start] = false;
+
 	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
 	for (size_t j = i; (i + j + 2*i*j) <= in_end; j++) {
-		mem_ptr[(i + j + 2 * i*j)] = false;
+		mem_ptr[(i + j + 2 * i*j) - in_start] = false;		//Working here: consider where is the correct place to have the offset ( - in_start)
+															//NTS: checkset is correct without offset, array seems correct with offset
+															//Identify dissonance
 	}
 
 	//Wait for all kernels to update
@@ -111,7 +118,7 @@ void SieveSundaramCUDA::LaunchKernel() {
 	//	->	block
 	size_t blocks = 1;
 	//	->	threads per block (max 1024)
-	size_t threads = this->n_;
+	size_t threads = this->mem_class_ptr_->NumberCapacity();
 	//	->	size of shared memory
 	size_t bytes = this->mem_class_ptr_->BytesAllocated();
 	//Launch
@@ -158,18 +165,24 @@ size_t SieveSundaramCUDA::IndexToNumber(size_t in_i) {
 
 //Public-------------------------------------------------------------------------------------------
 SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
-	: SieveBase(0, (((in_n-2)/2)+1) ) {
-	//NTS: +1 since we round up
+	: SieveBase(1, in_n) {
+	
 
-	this->mem_class_ptr_ = new PrimeMemoryBool(this->n_);
-	//this->mem_class_ptr_ = new PrimeMemoryBit(this->n_);
+	//Determine memory capacity needed
+	//NTS: +1 since we round up
+	size_t mem_size = ((in_n - 2) / 2) + ((in_n - 2) % 2);
+
+	//WORKING HERE: check sieve, check if we need to start from 0/1 in sundaram
+
+	this->mem_class_ptr_ = new PrimeMemoryBool(mem_size);
+	//this->mem_class_ptr_ = new PrimeMemoryBit(mem_size);
 
 	//Sundaram starts all as primes
 	this->mem_class_ptr_->SetAllPrime();
 
 	this->private_timer_.SaveTime();
 
-	//this->DoSieve();
+	this->DoSieve();
 
 	this->private_timer_.SaveTime();
 
@@ -186,10 +199,15 @@ SieveSundaramCUDA::~SieveSundaramCUDA() {
 bool SieveSundaramCUDA::IsPrime(size_t in_num) {
 	//Everything outside scope is false
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
-	//Otherwise return the stored bool for that value
+	
+	//Sundaram's sieve does not store even numbers
+	//> 2 special case
+	//> All other even numbers false
+	if (in_num == 2) { return true; }
+	if ((in_num % 2) == 0) { return false; }
 
-	//Offset number to correct index
-	size_t the_number_index = (in_num - 1) / 2; //NTS: study division here
+	//For odd numbers, offset number to correct index
+	size_t the_number_index = (in_num - 1) / 2;
 
 	//Return
 	return this->mem_class_ptr_->CheckIndex(the_number_index);

@@ -43,6 +43,10 @@ size_t PrimeMemoryBit::BytesAllocated() {
 	return this->num_of_ints_ * sizeof(int);
 }
 
+size_t PrimeMemoryBit::NumberCapacity() {
+	return this->num_of_bits_;
+}
+
 
 bool PrimeMemoryBit::CheckIndex(size_t in_i) {
 	//Return false for anything outside intended storage
