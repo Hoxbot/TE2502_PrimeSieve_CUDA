@@ -20,11 +20,9 @@ __global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_m
 	//First cuda thread should have id 0, so we need to offset by starting value
 	i += in_start;
 
-	//mem_ptr[in_start] = false;
-
 	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
 	for (size_t j = i; (i + j + 2*i*j) <= in_end; j++) {
-		mem_ptr[(i + j + 2 * i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index 
+		mem_ptr[(i + j + 2 * i*j) - 1] = false;		// NTS: (-1) offsets to correct array index since indexing starts at 0
 	}
 
 	//Wait for all kernels to update
@@ -114,13 +112,32 @@ void SieveSundaramCUDA::DownloadMemory() {
 void SieveSundaramCUDA::LaunchKernel() {
 	// Launch a kernel on the GPU with one thread for each element.
 	//	->	block
-	size_t blocks = 1;
 	//	->	threads per block (max 1024)
-	size_t threads = this->mem_class_ptr_->NumberCapacity();
 	//	->	size of shared memory
-	size_t bytes = this->mem_class_ptr_->BytesAllocated();
-	//Launch
-	SundaramKernel<<<blocks, threads, bytes>>>(this->start_, this->end_, this->device_mem_ptr_);
+	size_t full_blocks = this->mem_class_ptr_->NumberCapacity() / 1024;			//Number of full blocks
+	size_t excess_threads = this->mem_class_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
+	size_t bytes = this->mem_class_ptr_->BytesAllocated();						//Number of bytes to be in shared memory
+	
+	//Determine how to divide memory
+
+	//Calculate the break-off point between kernels if there are to be a separate launch
+	size_t break_point = this->start_ + full_blocks * 1024;		//WORKING HERE: There is an issue with the break point making it drop primes
+	
+	//OLD LAUNCHER
+	//blocks = 1
+	//threads ) this->mem_class_ptr_->NumberCapacity() : (one per number)
+	//SundaramKernel<<<blocks, threads, bytes>>>(this->start_, this->end_, this->device_mem_ptr_)
+
+	//Launch full blocks with 1024 threads
+	if (full_blocks > 0) {
+		SundaramKernel <<<full_blocks, 1024, bytes>>>(this->start_, break_point, this->device_mem_ptr_);
+	}
+
+	//Launch leftover threads in 1 block //NTS: Will run sequentially, thus start and end must be altered
+	if (excess_threads > 0) {
+		SundaramKernel <<<1, excess_threads, bytes>>>(break_point, this->end_, this->device_mem_ptr_);
+	}
+	
 
 	// Check for any errors launching the kernel
 	CUDAErrorOutput(

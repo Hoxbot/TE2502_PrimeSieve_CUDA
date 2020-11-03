@@ -35,16 +35,17 @@ int main() {
 		<< "\tMax allocation capacity (bytes):\t" << SIZE_MAX << "\n"
 		<< "\t---CUDA SIDE---\n"
 		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
-		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n\n";
+		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n"
+		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 
 
-	//SieveErathosthenesCPU eratosthenesA(50);
+	//SieveErathosthenesCPU eratosthenesA(13009);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(11);
+	SieveSundaramCUDA sundaramA(2500);
 	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
-	std::cout << sundaramA.StringifyTrackerArr() << std::endl;
+	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
