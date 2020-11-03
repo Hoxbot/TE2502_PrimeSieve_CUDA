@@ -24,9 +24,7 @@ __global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_m
 
 	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
 	for (size_t j = i; (i + j + 2*i*j) <= in_end; j++) {
-		mem_ptr[(i + j + 2 * i*j) - in_start] = false;		//Working here: consider where is the correct place to have the offset ( - in_start)
-															//NTS: checkset is correct without offset, array seems correct with offset
-															//Identify dissonance
+		mem_ptr[(i + j + 2 * i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index 
 	}
 
 	//Wait for all kernels to update
@@ -160,7 +158,7 @@ void SieveSundaramCUDA::DoSieve() {
 }
 
 size_t SieveSundaramCUDA::IndexToNumber(size_t in_i) {
-	return 2*(this->start_ + in_i) + 1;
+	return 2*(in_i + this->start_) + 1;
 }
 
 //Public-------------------------------------------------------------------------------------------
@@ -207,7 +205,7 @@ bool SieveSundaramCUDA::IsPrime(size_t in_num) {
 	if ((in_num % 2) == 0) { return false; }
 
 	//For odd numbers, offset number to correct index
-	size_t the_number_index = (in_num - 1) / 2;
+	size_t the_number_index = ((in_num - 1) / 2) - this->start_;
 
 	//Return
 	return this->mem_class_ptr_->CheckIndex(the_number_index);

@@ -42,7 +42,7 @@ int main() {
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(20);
+	SieveSundaramCUDA sundaramA(11);
 	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 

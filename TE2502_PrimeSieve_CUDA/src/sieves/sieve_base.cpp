@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdio.h>
 
-#include <iostream>
+//#include <iostream>
 
 //Private------------------------------------------------------------------------------------------
 float SieveBase::VerifyByFile() {
@@ -36,7 +36,7 @@ float SieveBase::VerifyByFile() {
 	bool read_next = true;
 	unsigned int prime_from_file = 0;
 	unsigned int num_of_misses = 0;
-	for (unsigned int i = 1; i <= this->end_; i++) {
+	for (unsigned int i = 2; i <= this->end_; i++) {
 		//Read the next number from the file
 		if (read_next) {
 			char c = ' ';
@@ -61,7 +61,7 @@ float SieveBase::VerifyByFile() {
 			read_next = false;
 		}
 
-		std::cout << "Checking:\t" << i << "\t(" << this->IsPrime(i) << ")\n";
+		//std::cout << "Checking:\t" << i << "\t(" << this->IsPrime(i) << ")\n";
 
 		//Compare i to the number from the file
 		//->If i != that number, i should not be prime (if it is we log miss)
