@@ -27,7 +27,7 @@ __global__ void SundaramKernel(size_t in_start, size_t in_n, void* in_device_mem
 	}
 
 	//Wait for all kernels to update
-	__syncthreads();
+	//__syncthreads();
 
 }
 
@@ -126,8 +126,8 @@ void SieveSundaramCUDA::LaunchKernel() {
 	//where the subsequent blocks should start
 	size_t alt_start = this->start_;
 
-	//Launch full blocks with 1024 threads	//NTS: A kernel can have 47 blocks at maximum?
-	size_t max_blocks = 48;
+	//Launch full blocks with 1024 threads	//NTS: A kernel can have 48 blocks at maximum? : no : 2^31 - 1?
+	size_t max_blocks = 2147483647;
 	while (full_blocks > 0) {
 
 		//Determine number of blocks in launch

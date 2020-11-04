@@ -40,11 +40,11 @@ int main() {
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 	*/
 
-	//SieveErathosthenesCPU eratosthenesA(13009);
-	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
+	SieveErathosthenesCPU eratosthenesA(1115485863);
+	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(198307); //98307 err (48 full blocks + 1 excess thread block) : 98306 no err (perfectly 48 blocks)
+	SieveSundaramCUDA sundaramA(1115485863);
 	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 
