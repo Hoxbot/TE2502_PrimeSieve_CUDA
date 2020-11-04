@@ -10,7 +10,7 @@
 //Helper
 void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func);
 //Kernels
-__global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_memory);
+__global__ void SundaramKernel(size_t in_start, size_t in_n, void* in_device_memory);
 
 //Class
 class SieveSundaramCUDA : public SieveBase {

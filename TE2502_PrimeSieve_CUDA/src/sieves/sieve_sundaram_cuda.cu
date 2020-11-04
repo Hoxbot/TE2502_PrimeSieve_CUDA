@@ -9,7 +9,7 @@ void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func
 	}
 }
 
-__global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_memory) {
+__global__ void SundaramKernel(size_t in_start, size_t in_n, void* in_device_memory) {
 
 	//Cast to bool	//NTS: Preferably we do this on cpu side, and only once
 	bool* mem_ptr = reinterpret_cast<bool*>(in_device_memory);
@@ -17,11 +17,12 @@ __global__ void SundaramKernel(size_t in_start, size_t in_end, void* in_device_m
 	//Get the thread's index
 	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 
-	//First cuda thread should have id 0, so we need to offset by starting value
+	//The first cuda thread has id 0
+	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
 	i += in_start;
 
 	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
-	for (size_t j = i; (i + j + 2*i*j) <= in_end; j++) {
+	for (size_t j = i; (i + j + 2*i*j) <= in_n; j++) {
 		mem_ptr[(i + j + 2 * i*j) - 1] = false;		// NTS: (-1) offsets to correct array index since indexing starts at 0
 	}
 
@@ -117,25 +118,21 @@ void SieveSundaramCUDA::LaunchKernel() {
 	size_t full_blocks = this->mem_class_ptr_->NumberCapacity() / 1024;			//Number of full blocks
 	size_t excess_threads = this->mem_class_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
 	size_t bytes = this->mem_class_ptr_->BytesAllocated();						//Number of bytes to be in shared memory
-	
-	//Determine how to divide memory
 
-	//Calculate the break-off point between kernels if there are to be a separate launch
-	size_t break_point = this->start_ + full_blocks * 1024;		//WORKING HERE: There is an issue with the break point making it drop primes
-	
-	//OLD LAUNCHER
-	//blocks = 1
-	//threads ) this->mem_class_ptr_->NumberCapacity() : (one per number)
-	//SundaramKernel<<<blocks, threads, bytes>>>(this->start_, this->end_, this->device_mem_ptr_)
+	//If there are to be several kernel launches we need to figure out
+	//where the one with excess threads should start
+	size_t break_point = full_blocks * 1024 + this->start_;
 
 	//Launch full blocks with 1024 threads
 	if (full_blocks > 0) {
-		SundaramKernel <<<full_blocks, 1024, bytes>>>(this->start_, break_point, this->device_mem_ptr_);
+		//std::cout << ">>\tLaunching [" << full_blocks << "] full blocks\n";
+		SundaramKernel <<<full_blocks, 1024, bytes>>>(this->start_, this->mem_class_ptr_->NumberCapacity(), this->device_mem_ptr_);
 	}
 
 	//Launch leftover threads in 1 block //NTS: Will run sequentially, thus start and end must be altered
 	if (excess_threads > 0) {
-		SundaramKernel <<<1, excess_threads, bytes>>>(break_point, this->end_, this->device_mem_ptr_);
+		//std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
+		SundaramKernel <<<1, excess_threads, bytes>>>(break_point, this->mem_class_ptr_->NumberCapacity(), this->device_mem_ptr_);
 	}
 	
 
@@ -200,8 +197,6 @@ SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
 	this->DoSieve();
 
 	this->private_timer_.SaveTime();
-
-
 }
 
 SieveSundaramCUDA::~SieveSundaramCUDA() {
