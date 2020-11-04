@@ -28,6 +28,7 @@ int main() {
 	//---
 	std::cout << "<Program Start>" << std::endl;
 
+	/*
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
 	std::cout 
@@ -37,13 +38,13 @@ int main() {
 		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
 		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n"
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
-
+	*/
 
 	//SieveErathosthenesCPU eratosthenesA(13009);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(20);
+	SieveSundaramCUDA sundaramA(198307); //98307 err (48 full blocks + 1 excess thread block) : 98306 no err (perfectly 48 blocks)
 	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 
@@ -58,7 +59,7 @@ int main() {
 
 	std::cout << "<Program End>" << std::endl;
 
-	WaitForEnter();
+	//WaitForEnter();
 
     return 0;
 }

@@ -117,39 +117,70 @@ void SieveSundaramCUDA::LaunchKernel() {
 	//	->	size of shared memory
 	size_t full_blocks = this->mem_class_ptr_->NumberCapacity() / 1024;			//Number of full blocks
 	size_t excess_threads = this->mem_class_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
-	size_t bytes = this->mem_class_ptr_->BytesAllocated();						//Number of bytes to be in shared memory
+	//size_t bytes = this->mem_class_ptr_->BytesAllocated();					//Number of bytes to be in shared memory //NTS: Everything is in global, no shared needed 
+
+	//Get where sieving should end
+	size_t n = this->mem_class_ptr_->NumberCapacity();
 
 	//If there are to be several kernel launches we need to figure out
-	//where the one with excess threads should start
-	size_t break_point = full_blocks * 1024 + this->start_;
+	//where the subsequent blocks should start
+	size_t alt_start = this->start_;
 
-	//Launch full blocks with 1024 threads
-	if (full_blocks > 0) {
-		//std::cout << ">>\tLaunching [" << full_blocks << "] full blocks\n";
-		SundaramKernel <<<full_blocks, 1024, bytes>>>(this->start_, this->mem_class_ptr_->NumberCapacity(), this->device_mem_ptr_);
+	//Launch full blocks with 1024 threads	//NTS: A kernel can have 47 blocks at maximum?
+	size_t max_blocks = 48;
+	while (full_blocks > 0) {
+
+		//Determine number of blocks in launch
+		size_t blocks_in_launch = (full_blocks > max_blocks) ? max_blocks : full_blocks;
+
+		//Launch kernel
+		std::cout << ">>\tLaunching [" << blocks_in_launch << " of " << full_blocks << "] full blocks\n";
+		SundaramKernel <<<blocks_in_launch, 1024, 0>>> (alt_start, n, this->device_mem_ptr_);
+
+		//Decrease number of remaining blocks
+		//Move kernel starting value
+		full_blocks -= blocks_in_launch;
+		alt_start += blocks_in_launch * 1024;
+
+		// Check for any errors launching the kernel
+		CUDAErrorOutput(
+			cudaGetLastError(),
+			"<full blocks launch>",
+			__FUNCTION__
+		);
+
+		// cudaDeviceSynchronize waits for the kernel to finish, and returns
+		// any errors encountered during the launch.
+		CUDAErrorOutput(
+			cudaDeviceSynchronize(),
+			"cudaDeviceSynchronize()",
+			__FUNCTION__
+		);
+
 	}
 
 	//Launch leftover threads in 1 block //NTS: Will run sequentially, thus start and end must be altered
 	if (excess_threads > 0) {
-		//std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
-		SundaramKernel <<<1, excess_threads, bytes>>>(break_point, this->mem_class_ptr_->NumberCapacity(), this->device_mem_ptr_);
+		std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
+		SundaramKernel <<<1, excess_threads, 0>>>(alt_start, n, this->device_mem_ptr_);
+
+		// Check for any errors launching the kernel
+		CUDAErrorOutput(
+			cudaGetLastError(),
+			"<excess thread launch>",
+			__FUNCTION__
+		);
+
+		// cudaDeviceSynchronize waits for the kernel to finish, and returns
+		// any errors encountered during the launch.
+		CUDAErrorOutput(
+			cudaDeviceSynchronize(),
+			"cudaDeviceSynchronize()",
+			__FUNCTION__
+		);
 	}
+
 	
-
-	// Check for any errors launching the kernel
-	CUDAErrorOutput(
-		cudaGetLastError(),
-		"cudaGetLastError()",
-		__FUNCTION__
-	);
-
-	// cudaDeviceSynchronize waits for the kernel to finish, and returns
-	// any errors encountered during the launch.
-	CUDAErrorOutput(
-		cudaDeviceSynchronize(),
-		"cudaDeviceSynchronize()",
-		__FUNCTION__
-	);
 }
 
 void SieveSundaramCUDA::DoSieve() {
