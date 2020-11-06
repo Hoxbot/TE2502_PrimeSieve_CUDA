@@ -17,7 +17,8 @@ protected:
 	size_t end_ = 0;
 	//size_t mem_size_ = 0;
 
-	PrimeMemory* mem_class_ptr_ = nullptr;
+	//PrimeMemory* mem_class_ptr_ = nullptr;
+	PrimeMemoryBool* mem_class_ptr_ = nullptr;	//NTS: Currently only this works with GPU upload
 
 	StatHandler private_timer_;
 

@@ -40,11 +40,11 @@ int main() {
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 	*/
 
-	SieveErathosthenesCPU eratosthenesA(1115485863);
+	SieveErathosthenesCPU eratosthenesA(10000);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(1115485863);
+	SieveSundaramCUDA sundaramA(10000);
 	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 

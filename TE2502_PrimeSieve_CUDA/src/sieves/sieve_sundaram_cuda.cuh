@@ -5,26 +5,29 @@
 #include "device_launch_parameters.h"
 
 #include "sieve_base.h"
+#include "sieve_cuda.cuh"
 
 //CUDA Stuff
-//Helper
-void CUDAErrorOutput(cudaError_t in_err, std::string in_msg, std::string in_func);
-//Kernels
-__global__ void SundaramKernel(size_t in_start, size_t in_n, void* in_device_memory);
+__global__ void SundaramKernel(size_t in_start, size_t in_n, bool* in_device_memory);
 
 //Class
-class SieveSundaramCUDA : public SieveBase {
+class SieveSundaramCUDA : public SieveBase, public SieveCUDA {
 private:
 	//size_t start_ = 0;
 	//size_t end_ = 0;
 
-	void* device_mem_ptr_ = nullptr;
+	/* NTS: Moved GPU allocation to own class
+	
+	bool* device_mem_ptr_ = nullptr;
 
 	void AllocateGPUMemory();
 	void DeallocateGPUMemory();
 	void UploadMemory();
 	void DownloadMemory();
 	void LaunchKernel();
+	*/
+
+	void SieveKernel(size_t in_blocks, size_t in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr);
 
 	void DoSieve();
 	size_t IndexToNumber(size_t in_i);

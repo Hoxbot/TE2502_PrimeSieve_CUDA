@@ -1,30 +1,11 @@
-#include "sieve_sundaram_cuda.cuh"
+#include "sieve_cuda.cuh"
 
-//#include "../support/cuda_error_output.h"
-
-//CUDA---------------------------------------------------------------------------------------------
-__global__ void SundaramKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
-	//Get the thread's index
-	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
-
-	//The first cuda thread has id 0
-	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
-	i += in_start;
-
-	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
-	for (size_t j = i; (i + j + 2*i*j) <= in_n; j++) {
-		in_device_memory[(i + j + 2 * i*j) - 1] = false;		// NTS: (-1) offsets to correct array index since indexing starts at 0
-	}
-
-	//Wait for all kernels to update
-	//__syncthreads();
-
-}
+#include "../support/cuda_error_output.h"
 
 //Private------------------------------------------------------------------------------------------
-/*
 
-void SieveSundaramCUDA::AllocateGPUMemory() {
+//Protected----------------------------------------------------------------------------------------
+void SieveCUDA::AllocateGPUMemory() {
 	//CUDA Memory Notes:
 	// A single CUDA Block can run 1024 threads.
 	// Each block shares:
@@ -53,14 +34,14 @@ void SieveSundaramCUDA::AllocateGPUMemory() {
 	//Allocate memory on device
 	CUDAErrorOutput(
 		cudaMalloc(
-			(void**)&(this->device_mem_ptr_),
-			this->mem_class_ptr_->BytesAllocated()
+		(void**)&(this->device_mem_ptr_),
+			this->sieve_mem_ptr_->BytesAllocated()
 		),
 		"cudaMalloc()", __FUNCTION__
 	);
 }
 
-void SieveSundaramCUDA::DeallocateGPUMemory() {
+void SieveCUDA::DeallocateGPUMemory() {
 	//Deallocate the memory on device
 	CUDAErrorOutput(
 		cudaFree(this->device_mem_ptr_),
@@ -69,22 +50,22 @@ void SieveSundaramCUDA::DeallocateGPUMemory() {
 	this->device_mem_ptr_ = nullptr;
 }
 
-void SieveSundaramCUDA::UploadMemory() {
+void SieveCUDA::UploadMemory() {
 	//Copy data to memory
 	//NTS: The booleans must be true, but is an upload needed?
 	//Is it enough to allocate, alter in the kernel and download?
 	CUDAErrorOutput(
 		cudaMemcpy(
 			this->device_mem_ptr_,					//Target
-			this->mem_class_ptr_->getMemPtr(),		//Source
-			this->mem_class_ptr_->BytesAllocated(),	//Byte count
+			this->sieve_mem_ptr_->getMemPtr(),		//Source
+			this->sieve_mem_ptr_->BytesAllocated(),	//Byte count
 			cudaMemcpyHostToDevice					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
 	);
 }
 
-void SieveSundaramCUDA::DownloadMemory() {
+void SieveCUDA::DownloadMemory() {
 
 	//NTS: Might need to be altered to dowload to a specific
 	// array index and forward
@@ -92,9 +73,9 @@ void SieveSundaramCUDA::DownloadMemory() {
 	//Download data into memory structure
 	CUDAErrorOutput(
 		cudaMemcpy(
-			this->mem_class_ptr_->getMemPtr(),		//Target
+			this->sieve_mem_ptr_->getMemPtr(),		//Target
 			this->device_mem_ptr_,					//Source
-			this->mem_class_ptr_->BytesAllocated(),	//Byte count
+			this->sieve_mem_ptr_->BytesAllocated(),	//Byte count
 			cudaMemcpyDeviceToHost					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
@@ -102,25 +83,25 @@ void SieveSundaramCUDA::DownloadMemory() {
 
 }
 
-void SieveSundaramCUDA::LaunchKernel() {
+void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 	// Launch a kernel on the GPU with one thread for each element.
 	//	->	block
 	//	->	threads per block (max 1024)
 	//	->	size of shared memory
-	size_t full_blocks = this->mem_class_ptr_->NumberCapacity() / 1024;			//Number of full blocks
-	size_t excess_threads = this->mem_class_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
+	size_t full_blocks = this->sieve_mem_ptr_->NumberCapacity() / 1024;			//Number of full blocks
+	size_t excess_threads = this->sieve_mem_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
 	//size_t bytes = this->mem_class_ptr_->BytesAllocated();					//Number of bytes to be in shared memory //NTS: Everything is in global, no shared needed 
 
 	//Get where sieving should end
-	size_t n = this->mem_class_ptr_->NumberCapacity();
+	size_t n = this->sieve_mem_ptr_->NumberCapacity();
 
 	//If there are to be several kernel launches we need to figure out
 	//where the subsequent blocks should start
-	size_t alt_start = this->start_;
+	size_t alt_start = in_sieve_start;	// this->start_;
 
 	//Launch full blocks with 1024 threads	//NTS: A kernel can have 48 blocks at maximum? : no : 2^31 - 1?
 	size_t max_blocks = 2147483647;
-	//size_t max_blocks = 10;
+	//size_t max_blocks = 2;
 	while (full_blocks > 0) {
 
 		//Determine number of blocks in launch
@@ -128,7 +109,8 @@ void SieveSundaramCUDA::LaunchKernel() {
 
 		//Launch kernel
 		std::cout << ">>\tLaunching [" << blocks_in_launch << " of " << full_blocks << "] full blocks\n";
-		SundaramKernel <<<blocks_in_launch, 1024, 0>>> (alt_start, n, this->device_mem_ptr_);
+		//SundaramKernel <<<blocks_in_launch, 1024, 0>>> (alt_start, n, this->device_mem_ptr_);
+		this->SieveKernel(blocks_in_launch, 1024, alt_start, n, this->device_mem_ptr_);
 
 		//Decrease number of remaining blocks
 		//Move kernel starting value
@@ -155,7 +137,8 @@ void SieveSundaramCUDA::LaunchKernel() {
 	//Launch leftover threads in 1 block //NTS: Will run sequentially, thus start and end must be altered
 	if (excess_threads > 0) {
 		std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
-		SundaramKernel <<<1, excess_threads, 0>>>(alt_start, n, this->device_mem_ptr_);
+		//SundaramKernel <<<1, excess_threads, 0>>> (alt_start, n, this->device_mem_ptr_);
+		this->SieveKernel(1, excess_threads, alt_start, n, this->device_mem_ptr_);
 
 		// Check for any errors launching the kernel
 		CUDAErrorOutput(
@@ -173,83 +156,18 @@ void SieveSundaramCUDA::LaunchKernel() {
 		);
 	}
 
-	
-}
 
-*/
-
-void SieveSundaramCUDA::SieveKernel(size_t in_blocks, size_t in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) {
-	SundaramKernel <<<(unsigned int)in_blocks, (unsigned int)in_threads, 0>>> (in_start, in_end, in_mem_ptr);
-}
-
-void SieveSundaramCUDA::DoSieve() {
-
-	//Allocate
-	this->AllocateGPUMemory();
-
-	//Upload
-	this->UploadMemory();
-
-	//Launch work-groups
-	this->LaunchKernel(this->start_);
-
-	//Download
-	this->DownloadMemory();
-
-	//Deallocate
-	this->DeallocateGPUMemory();
-
-}
-
-size_t SieveSundaramCUDA::IndexToNumber(size_t in_i) {
-	return 2*(in_i + this->start_) + 1;
 }
 
 //Public-------------------------------------------------------------------------------------------
-SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
-	: SieveBase(1, in_n), SieveCUDA() {
-	
-
-	//Determine memory capacity needed
-	//NTS: +1 since we round up
-	size_t mem_size = ((in_n - 2) / 2) + ((in_n - 2) % 2);
-
-	//WORKING HERE: check sieve, check if we need to start from 0/1 in sundaram
-
-	this->mem_class_ptr_ = new PrimeMemoryBool(mem_size);
-	//this->mem_class_ptr_ = new PrimeMemoryBit(mem_size);
-	this->LinkMemory(this->mem_class_ptr_);
-
-	//Sundaram starts all as primes
-	this->mem_class_ptr_->SetAllPrime();
-
-	this->private_timer_.SaveTime();
-
-	this->DoSieve();
-
-	this->private_timer_.SaveTime();
+SieveCUDA::SieveCUDA() {
 }
 
-SieveSundaramCUDA::~SieveSundaramCUDA() {
-	if (this->mem_class_ptr_ != nullptr) {
-		delete this->mem_class_ptr_;
-		this->mem_class_ptr_ = nullptr;
-	}	
+SieveCUDA::~SieveCUDA() {
+	//NTS: Do not delete this ptr here
+	this->sieve_mem_ptr_ = nullptr;
 }
 
-bool SieveSundaramCUDA::IsPrime(size_t in_num) {
-	//Everything outside scope is false
-	if (in_num < this->start_ || in_num > this->end_) { return false; }
-	
-	//Sundaram's sieve does not store even numbers
-	//> 2 special case
-	//> All other even numbers false
-	if (in_num == 2) { return true; }
-	if ((in_num % 2) == 0) { return false; }
-
-	//For odd numbers, offset number to correct index
-	size_t the_number_index = ((in_num - 1) / 2) - this->start_;
-
-	//Return
-	return this->mem_class_ptr_->CheckIndex(the_number_index);
+void SieveCUDA::LinkMemory(PrimeMemoryBool * in_ptr) {
+	this->sieve_mem_ptr_ = in_ptr;
 }

@@ -37,8 +37,8 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
 	//Determine memory capacity needed
 	size_t mem_size = in_n - 2 + 1; //+1 because it's inclusive: [start, end]
 
-	//this->mem_class_ptr_ = new PrimeMemoryBool(mem_size);
-	this->mem_class_ptr_ = new PrimeMemoryBit(mem_size);
+	this->mem_class_ptr_ = new PrimeMemoryBool(mem_size);
+	//this->mem_class_ptr_ = new PrimeMemoryBit(mem_size);
 
 	//Eratosthenes starts all as primes
 	this->mem_class_ptr_->SetAllPrime();

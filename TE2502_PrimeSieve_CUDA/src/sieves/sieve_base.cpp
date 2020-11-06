@@ -78,7 +78,7 @@ float SieveBase::VerifyByFile() {
 	fclose(file_ptr);
 
 	//Calculate how many percent of the numbers where identified correctly
-	unsigned int nums_in_memory = this->mem_class_ptr_->NumberCapacity();
+	size_t nums_in_memory = this->mem_class_ptr_->NumberCapacity();
 	float percentage_correct = (1.0f - ((float)num_of_misses / (float)nums_in_memory))*100;
 
 	//Return
