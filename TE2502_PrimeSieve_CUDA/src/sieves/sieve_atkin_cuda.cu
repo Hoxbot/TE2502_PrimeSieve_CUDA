@@ -28,18 +28,25 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	//- Might overwrite already set correct result in some cases
 	//- Since we only set 'true' maybe we can make it so it does not overwrite already true entries?
 	
+	//NTS:	"Odd number of solutions", does that mean we should flip the state to the inverse?
+	//		Two hits (even number of solutions) would then flip false->true->false
+	//Ans:	Yes, apparently.
+
 	if (i*i < in_n) {
 		size_t x = i;
 		for (size_t y = 1; y*y < in_n; y++) {
 
 			size_t z = (4*x*x) + (y*y);
-			if (z <= in_n && (z % 12 == 1 || z % 12 == 5)) { in_device_memory[z - 1] = true; }
+			//if (z <= in_n && (z % 12 == 1 || z % 12 == 5)) { in_device_memory[z - 1] = true; }
+			if (z <= in_n && (z % 12 == 1 || z % 12 == 5)) { in_device_memory[z - 1] = !in_device_memory[z - 1]; }
 
 			z = (3*x*x) + (y*y);
-			if (z <= in_n && (z % 12 == 7)) { in_device_memory[z - 1] = true; }
+			//if (z <= in_n && (z % 12 == 7)) { in_device_memory[z - 1] = true; }
+			if (z <= in_n && (z % 12 == 7)) { in_device_memory[z - 1] = !in_device_memory[z - 1]; }
 
 			z = (3*x*x) - (y*y);
-			if (z <= in_n && (x > y) && (z % 12 == 11)) { in_device_memory[z - 1] = true; }
+			//if (z <= in_n && (x > y) && (z % 12 == 11)) { in_device_memory[z - 1] = true; }
+			if (z <= in_n && (x > y) && (z % 12 == 11)) { in_device_memory[z - 1] = !in_device_memory[z - 1]; }
 		}
 	}
 

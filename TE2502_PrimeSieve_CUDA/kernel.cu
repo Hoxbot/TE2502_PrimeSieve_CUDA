@@ -41,7 +41,7 @@ int main() {
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 	*/
 
-	size_t n = 100;
+	size_t n = 2048;
 
 	SieveErathosthenesCPU eratosthenesA(n);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
