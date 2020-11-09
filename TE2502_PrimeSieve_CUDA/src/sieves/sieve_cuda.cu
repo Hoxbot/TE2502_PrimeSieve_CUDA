@@ -88,8 +88,10 @@ void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 	//	->	block
 	//	->	threads per block (max 1024)
 	//	->	size of shared memory
-	size_t full_blocks = this->sieve_mem_ptr_->NumberCapacity() / 1024;			//Number of full blocks
-	size_t excess_threads = this->sieve_mem_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
+		//NTS:	unsigned int, not size_t. Need to fix safe conversion?
+		//		Excess threads are fine, cannot be more than 1024 which fits
+	unsigned int full_blocks = this->sieve_mem_ptr_->NumberCapacity() / 1024;	//Number of full blocks
+	unsigned int excess_threads = this->sieve_mem_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
 	//size_t bytes = this->mem_class_ptr_->BytesAllocated();					//Number of bytes to be in shared memory //NTS: Everything is in global, no shared needed 
 
 	//Get where sieving should end
@@ -100,12 +102,12 @@ void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 	size_t alt_start = in_sieve_start;	// this->start_;
 
 	//Launch full blocks with 1024 threads	//NTS: A kernel can have 48 blocks at maximum? : no : 2^31 - 1?
-	size_t max_blocks = 2147483647;
+	unsigned int max_blocks = 2147483647;
 	//size_t max_blocks = 2;
 	while (full_blocks > 0) {
 
 		//Determine number of blocks in launch
-		size_t blocks_in_launch = (full_blocks > max_blocks) ? max_blocks : full_blocks;
+		unsigned int blocks_in_launch = (full_blocks > max_blocks) ? max_blocks : full_blocks;
 
 		//Launch kernel
 		std::cout << ">>\tLaunching [" << blocks_in_launch << " of " << full_blocks << "] full blocks\n";

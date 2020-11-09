@@ -3,65 +3,78 @@
 //#include "../support/cuda_error_output.h"
 
 //CUDA---------------------------------------------------------------------------------------------
-__global__ void AtkinKernel(void* in_device_memory) {
+__global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
+	//Get the thread's index
+	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 
+	//The first cuda thread has id 0
+	//-> It computes number i
+	//-> It should set array index i-1
+	i += in_start;	//NTS: Exchange i for x?
+
+	//Sieve of Atkins
+	//> For (x^2 < n) and (y^2 < n), x = 1,2,..., y = 1,2,...
+	//> A number is prime if any of the following is true:
+	//>> (z = 4*x*x + y*y) has odd number of solutions	AND	(z % 12 = 1) or (z % 12 = 5)
+	//>> (z = 3*x*x + y*y) has odd number of solutions	AND	(z % 12 = 7)
+	//>> (z = 3*x*x - y*y) has odd number of solutions	AND (x > y)	AND	(z % 12 = 11)
+	//> Multiples of squares might have been marked, delist:
+	//>> (z = x*x*y), x = 1,2,..., y = 1,2,...
+
+	//NTS: An terrible amount of if-statements for a GPGPU kernel. 
+	//- Path divergence will cause slowdown.
+	//- Could one rewrite them as an assignment ?
+	//- (ergo: 'if(x) set array = true' -> set array (x))
+	//- Might overwrite already set correct result in some cases
+	//- Since we only set 'true' maybe we can make it so it does not overwrite already true entries?
+	
+	if (i*i < in_n) {
+		size_t x = i;
+		for (size_t y = 1; y*y < in_n; y++) {
+
+			size_t z = (4*x*x) + (y*y);
+			if (z <= in_n && (z % 12 == 1 || z % 12 == 5)) { in_device_memory[z - 1] = true; }
+
+			z = (3*x*x) + (y*y);
+			if (z <= in_n && (z % 12 == 7)) { in_device_memory[z - 1] = true; }
+
+			z = (3*x*x) - (y*y);
+			if (z <= in_n && (x > y) && (z % 12 == 11)) { in_device_memory[z - 1] = true; }
+		}
+	}
+
+	// NTS: Should this be in the GPGPU function?
+	//Only for 5 and onwards. More path divergence :/
+	if (i >= 5 && i*i < in_n) {
+		size_t x = i;
+		if (in_device_memory[x - 1]) {
+			for (size_t y = x*x; y < in_n; y += x*x) {
+				in_device_memory[y - 1] = false;
+			}
+		}
+	}
 }
 
 //Private------------------------------------------------------------------------------------------
-/*
-
-void SieveAtkinCUDA::AllocateGPUMemory() {
-	//Allocate memory on device
-	CUDAErrorOutput(
-		cudaMalloc(
-		(void**)&(this->device_mem_ptr_),
-			this->mem_class_ptr_->BytesAllocated()
-		),
-		"cudaMalloc()", __FUNCTION__
-	);
+void SieveAtkinCUDA::SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) {
+	AtkinKernel <<<in_blocks, in_threads, 0>>> (in_start, in_end, in_mem_ptr);
 }
-
-void SieveAtkinCUDA::DeallocateGPUMemory() {
-	//Deallocate the memory on device
-	CUDAErrorOutput(
-		cudaFree(this->device_mem_ptr_),
-		"cudaFree()", __FUNCTION__
-	);
-	this->device_mem_ptr_ = nullptr;
-}
-
-void SieveAtkinCUDA::UploadMemory() {
-	//Copy data to memory
-	CUDAErrorOutput(
-		cudaMemcpy(
-			this->device_mem_ptr_,					//Target
-			this->mem_class_ptr_->getMemPtr(),		//Source
-			this->mem_class_ptr_->BytesAllocated(),	//Byte count
-			cudaMemcpyHostToDevice					//Transfer type
-		),
-		"cudaMemcpy()", __FUNCTION__
-	);
-}
-
-void SieveAtkinCUDA::DownloadMemory() {
-	//Download data into memory structure
-	CUDAErrorOutput(
-		cudaMemcpy(
-			this->mem_class_ptr_->getMemPtr(),		//Target
-			this->device_mem_ptr_,					//Source
-			this->mem_class_ptr_->BytesAllocated(),	//Byte count
-			cudaMemcpyDeviceToHost					//Transfer type
-		),
-		"cudaMemcpy()", __FUNCTION__
-	);
-}
-
-void SieveAtkinCUDA::LaunchKernel() {
-}
-
-*/
 
 void SieveAtkinCUDA::DoSieve() {
+	//Allocate
+	this->AllocateGPUMemory();
+
+	//Upload
+	this->UploadMemory();
+
+	//Launch work-groups
+	this->LaunchKernel(this->start_);
+
+	//Download
+	this->DownloadMemory();
+
+	//Deallocate
+	this->DeallocateGPUMemory();
 }
 
 size_t SieveAtkinCUDA::IndexToNumber(size_t in_i) {
@@ -70,7 +83,7 @@ size_t SieveAtkinCUDA::IndexToNumber(size_t in_i) {
 
 //Public-------------------------------------------------------------------------------------------
 SieveAtkinCUDA::SieveAtkinCUDA(size_t in_n) 
-	: SieveBase(1, in_n) {
+	: SieveBase(1, in_n), SieveCUDA() {
 
 	//NTS: Atkins excluding limit? ( [1, n[ )
 
@@ -79,6 +92,7 @@ SieveAtkinCUDA::SieveAtkinCUDA(size_t in_n)
 
 	this->mem_class_ptr_ = new PrimeMemoryBool(mem_size);
 	//this->mem_class_ptr_ = new PrimeMemoryBit(mem_size);
+	this->LinkMemory(this->mem_class_ptr_);
 
 	//Atkin starts all as non-primes
 	this->mem_class_ptr_->SetAllNonPrime();

@@ -163,7 +163,7 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
 	ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
 	ret_str += this->StringifyExecutionTime() + "\n";
-	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
+	ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
 
 	//Return
 	return ret_str;

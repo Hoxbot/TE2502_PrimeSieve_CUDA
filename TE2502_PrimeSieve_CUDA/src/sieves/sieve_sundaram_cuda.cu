@@ -178,8 +178,8 @@ void SieveSundaramCUDA::LaunchKernel() {
 
 */
 
-void SieveSundaramCUDA::SieveKernel(size_t in_blocks, size_t in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) {
-	SundaramKernel <<<(unsigned int)in_blocks, (unsigned int)in_threads, 0>>> (in_start, in_end, in_mem_ptr);
+void SieveSundaramCUDA::SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) {
+	SundaramKernel <<<in_blocks, in_threads, 0>>> (in_start, in_end, in_mem_ptr);
 }
 
 void SieveSundaramCUDA::DoSieve() {

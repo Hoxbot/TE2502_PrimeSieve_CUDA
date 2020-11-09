@@ -14,6 +14,7 @@
 //Sieves
 #include "src/sieves/sieve_eratosthenes_cpu.h"
 #include "src/sieves/sieve_sundaram_cuda.cuh"
+#include "src/sieves/sieve_atkin_cuda.cuh"
 
 //Misc
 inline void WaitForEnter() {
@@ -40,13 +41,19 @@ int main() {
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 	*/
 
-	SieveErathosthenesCPU eratosthenesA(10000);
+	size_t n = 100;
+
+	SieveErathosthenesCPU eratosthenesA(n);
 	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(10000);
+	SieveSundaramCUDA sundaramA(n);
 	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
+
+	SieveAtkinCUDA atkinA(n);
+	std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
+	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

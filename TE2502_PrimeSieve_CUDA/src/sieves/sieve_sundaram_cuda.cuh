@@ -27,7 +27,7 @@ private:
 	void LaunchKernel();
 	*/
 
-	void SieveKernel(size_t in_blocks, size_t in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr);
+	void SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr);
 
 	void DoSieve();
 	size_t IndexToNumber(size_t in_i);

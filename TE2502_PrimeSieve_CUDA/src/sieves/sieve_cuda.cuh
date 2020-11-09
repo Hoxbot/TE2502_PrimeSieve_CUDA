@@ -21,7 +21,7 @@ protected:
 	void DownloadMemory();
 	void LaunchKernel(size_t in_sieve_start);
 
-	virtual void SieveKernel(size_t in_blocks, size_t in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) = 0;
+	virtual void SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) = 0;
 
 public:
 	SieveCUDA();
