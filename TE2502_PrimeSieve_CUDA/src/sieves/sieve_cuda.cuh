@@ -13,8 +13,6 @@ private:
 	bool* device_mem_ptr_ = nullptr;
 
 protected:
-	
-
 	void AllocateGPUMemory();
 	void DeallocateGPUMemory();
 	void UploadMemory();

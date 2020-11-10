@@ -41,19 +41,30 @@ int main() {
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 	*/
 
-	size_t n = 2048;
+	size_t n = 1024;
 
-	SieveErathosthenesCPU eratosthenesA(n);
-	std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
+	//SieveErathosthenesCPU eratosthenesA(n);
+	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDA sundaramA(n);
-	std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
+	//SieveSundaramCUDA sundaramA(n);
+	//std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 
-	SieveAtkinCUDA atkinA(n);
-	std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
+	//SieveAtkinCUDA atkinA(n);
+	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
+
+	//Test, run 1 full block to 2 full blocks
+	//for (size_t i = 1024; i < 2048; i++) {
+	//	std::cout << SieveAtkinCUDA(i).StringifyResults(" ") << std::endl;
+	//}
+
+	//Allocation test
+	std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;
+	std::cout << SieveSundaramCUDA(1024).StringifyResults("SECOND") << std::endl;
+	std::cout << SieveSundaramCUDA(2048).StringifyResults("THIRD") << std::endl;
+	std::cout << SieveSundaramCUDA(4096).StringifyResults("FOURTH") << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

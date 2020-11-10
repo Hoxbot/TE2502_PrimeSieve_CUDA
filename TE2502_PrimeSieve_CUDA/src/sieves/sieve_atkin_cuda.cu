@@ -5,12 +5,12 @@
 //CUDA---------------------------------------------------------------------------------------------
 __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
 	//Get the thread's index
-	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+	unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
 
 	//The first cuda thread has id 0
-	//-> It computes number i
-	//-> It should set array index i-1
-	i += in_start;	//NTS: Exchange i for x?
+	//-> It computes number x
+	//-> It should set array index x-1
+	x += in_start;
 
 	//Sieve of Atkins
 	//> For (x^2 < n) and (y^2 < n), x = 1,2,..., y = 1,2,...
@@ -32,8 +32,7 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	//		Two hits (even number of solutions) would then flip false->true->false
 	//Ans:	Yes, apparently.
 
-	if (i*i < in_n) {
-		size_t x = i;
+	if (x*x < in_n) {
 		for (size_t y = 1; y*y < in_n; y++) {
 
 			size_t z = (4*x*x) + (y*y);
@@ -52,8 +51,8 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 
 	// NTS: Should this be in the GPGPU function?
 	//Only for 5 and onwards. More path divergence :/
-	if (i >= 5 && i*i < in_n) {
-		size_t x = i;
+	if (x >= 5 && x*x < in_n) {
+		size_t x = x;
 		if (in_device_memory[x - 1]) {
 			for (size_t y = x*x; y < in_n; y += x*x) {
 				in_device_memory[y - 1] = false;
@@ -71,14 +70,22 @@ void SieveAtkinCUDA::DoSieve() {
 	//Allocate
 	this->AllocateGPUMemory();
 
+	this->private_timer_.SaveTime();
+
 	//Upload
 	this->UploadMemory();
+
+	this->private_timer_.SaveTime();
 
 	//Launch work-groups
 	this->LaunchKernel(this->start_);
 
+	this->private_timer_.SaveTime();
+
 	//Download
 	this->DownloadMemory();
+
+	this->private_timer_.SaveTime();
 
 	//Deallocate
 	this->DeallocateGPUMemory();
