@@ -132,8 +132,8 @@ std::string SieveBase::StringifyTrackerArr() {
 std::string SieveBase::StringifyExecutionTime() {
 	//Fix the string
 	std::string ret_str = "";
-	ret_str += this->private_timer_.StringifyLapTimes();
-	ret_str += this->private_timer_.StringifyTotalTime();
+	ret_str += this->timer_.StringifyLapTimes();
+	ret_str += this->timer_.StringifyTotalTime();
 
 	//Return
 	return ret_str;

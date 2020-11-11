@@ -52,7 +52,6 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	// NTS: Should this be in the GPGPU function?
 	//Only for 5 and onwards. More path divergence :/
 	if (x >= 5 && x*x < in_n) {
-		size_t x = x;
 		if (in_device_memory[x - 1]) {
 			for (size_t y = x*x; y < in_n; y += x*x) {
 				in_device_memory[y - 1] = false;
@@ -70,22 +69,22 @@ void SieveAtkinCUDA::DoSieve() {
 	//Allocate
 	this->AllocateGPUMemory();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Upload
 	this->UploadMemory();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Launch work-groups
 	this->LaunchKernel(this->start_);
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Download
 	this->DownloadMemory();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Deallocate
 	this->DeallocateGPUMemory();
@@ -111,7 +110,7 @@ SieveAtkinCUDA::SieveAtkinCUDA(size_t in_n)
 	//Atkin starts all as non-primes
 	this->mem_class_ptr_->SetAllNonPrime();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Set 2 and 3 manually as sieving process starts at 5
 	if (in_n >= 2) { this->mem_class_ptr_->SetPrime(1); }
@@ -119,7 +118,7 @@ SieveAtkinCUDA::SieveAtkinCUDA(size_t in_n)
 
 	this->DoSieve();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 }
 

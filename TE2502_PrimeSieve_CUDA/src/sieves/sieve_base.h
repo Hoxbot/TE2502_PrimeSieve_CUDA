@@ -20,7 +20,7 @@ protected:
 	//PrimeMemory* mem_class_ptr_ = nullptr;
 	PrimeMemoryBool* mem_class_ptr_ = nullptr;	//NTS: Currently only this works with GPU upload
 
-	StatHandler private_timer_;
+	StatHandler timer_;
 
 	virtual void DoSieve() = 0;
 	virtual size_t IndexToNumber(size_t in_i) = 0;

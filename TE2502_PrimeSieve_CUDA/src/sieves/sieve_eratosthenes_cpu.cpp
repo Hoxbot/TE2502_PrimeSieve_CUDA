@@ -43,11 +43,11 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
 	//Eratosthenes starts all as primes
 	this->mem_class_ptr_->SetAllPrime();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	this->DoSieve();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 }
 

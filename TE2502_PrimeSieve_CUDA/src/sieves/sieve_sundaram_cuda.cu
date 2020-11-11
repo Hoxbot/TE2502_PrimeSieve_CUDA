@@ -187,22 +187,22 @@ void SieveSundaramCUDA::DoSieve() {
 	//Allocate
 	this->AllocateGPUMemory();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Upload
 	this->UploadMemory();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Launch work-groups
 	this->LaunchKernel(this->start_);
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Download
 	this->DownloadMemory();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	//Deallocate
 	this->DeallocateGPUMemory();
@@ -231,11 +231,11 @@ SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
 	//Sundaram starts all as primes
 	this->mem_class_ptr_->SetAllPrime();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 
 	this->DoSieve();
 
-	this->private_timer_.SaveTime();
+	this->timer_.SaveTime();
 }
 
 SieveSundaramCUDA::~SieveSundaramCUDA() {
