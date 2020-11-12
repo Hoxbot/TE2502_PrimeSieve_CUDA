@@ -29,8 +29,8 @@ private:
 protected:
 	void AllocateGPUMemory();
 	void DeallocateGPUMemory();
-	void UploadMemory();
-	void DownloadMemory();
+	void UploadMemory(size_t in_i);
+	void DownloadMemory(size_t in_i);
 	void LaunchKernel(size_t in_sieve_start);
 
 	virtual void SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) = 0;

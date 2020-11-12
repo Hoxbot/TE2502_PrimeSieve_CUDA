@@ -62,7 +62,8 @@ void SieveCUDABatches::DeallocateGPUMemory() {
 	this->device_mem_ptr_ = nullptr;
 }
 
-void SieveCUDABatches::UploadMemory() {
+void SieveCUDABatches::UploadMemory(size_t in_i) {
+
 	//Upload batch on given index
 	CUDAErrorOutput(
 		cudaMemcpy(
@@ -75,7 +76,7 @@ void SieveCUDABatches::UploadMemory() {
 	);
 }
 
-void SieveCUDABatches::DownloadMemory() {
+void SieveCUDABatches::DownloadMemory(size_t in_i) {
 	//Download batch on given index
 	CUDAErrorOutput(
 		cudaMemcpy(

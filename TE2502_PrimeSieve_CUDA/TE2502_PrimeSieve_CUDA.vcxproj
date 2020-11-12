@@ -105,6 +105,7 @@
     <ClInclude Include="src\sieves\sieve_cuda_batches.cuh" />
     <ClInclude Include="src\sieves\sieve_eratosthenes_cpu.h" />
     <ClInclude Include="src\sieves\sieve_sundaram_cuda.cuh" />
+    <ClInclude Include="src\support\cuda_error_output.h" />
     <ClInclude Include="src\support\stat_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
