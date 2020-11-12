@@ -1,41 +1,59 @@
-#include "sieve_cuda.cuh"
+#include "sieve_cuda_batches.cuh"
 
 #include "../support/cuda_error_output.h"
 
 //Private------------------------------------------------------------------------------------------
 
 //Protected----------------------------------------------------------------------------------------
-void SieveCUDA::AllocateGPUMemory() {
-	//CUDA Memory Notes:
-	// A single CUDA Block can run 1024 threads.
-	// Each block shares:
-	//	- The global memory (slow)
-	//	- The constant memory (fast)
-	// Each block has:
-	//	- A shared memory that can be accessed by the threads in the block
-	//	- A set of registers (for variables an the like i presume)
-	//		> NTS: Keep in mind that since each thread can write into the registers
-	//		> the numbers of variables declared in the kernel functions are multiplied
-	//		> by the number of threads. Over-declaration of variables eats memory fast.
-	//
-	//	Global memory capacity (bytes): 3221225472
-	//	Shared memory capacity (bytes): 49152
+void SieveCUDABatches::AllocateGPUMemory() {
+	//Get GPU limitations
+	cudaDeviceProp prop;
+	cudaGetDeviceProperties(&prop, 0);
+	size_t gpu_global_mem_capacity = prop.totalGlobalMem;
 
+	//Fetch the number of bytes stored on the CPU side memory
+	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();
 
-	//Step 0.1: 
-	// NTS: Do we benefit from contious allocation?
+	//If the more bytes are required than the GPU can hold
+	//we index additional batches, partitioning the numbers
+	size_t batch_num = 0;
+	void* mem_ptr = this->sieve_mem_ptr_->getMemPtr();
+	while (bytes_to_allocate > gpu_global_mem_capacity) {
+
+		Batch b;
+
+		size_t offset = batch_num * gpu_global_mem_capacity;
+
+		b.batch_ptr = static_cast<bool*>(mem_ptr) + offset;	//Batch starts a number of bytes into cpu memory
+		b.batch_size = gpu_global_mem_capacity;				//Size of batch
+		b.batch_start_index = offset;						//The index (in cpu memory) the memory starts at
+
+		this->batches_.push_back(b);
+
+		batch_num++;
+		bytes_to_allocate -= gpu_global_mem_capacity;
+	}
+
+	//Repeat process for the one batch that isn't overfull 
+	Batch b;
+	size_t offset = batch_num * gpu_global_mem_capacity;
+	b.batch_ptr = static_cast<bool*>(mem_ptr) + offset;		//Batch starts a number of bytes into cpu memory
+	b.batch_size = bytes_to_allocate;						//Size of batch
+	b.batch_start_index = offset;							//The index (in cpu memory) the memory starts at
+	this->batches_.push_back(b);
+	batch_num++;
 
 	//Allocate memory on device
 	CUDAErrorOutput(
 		cudaMalloc(
 		(void**)&(this->device_mem_ptr_),
-		this->sieve_mem_ptr_->BytesAllocated()
-		),
+			this->batches_[0].batch_size	//The first batch is always large enough. Either it is maxed out and
+		),									//all other batches are the same or smaller, or it is the only batch.
 		"cudaMalloc()", __FUNCTION__
 	);
 }
 
-void SieveCUDA::DeallocateGPUMemory() {
+void SieveCUDABatches::DeallocateGPUMemory() {
 	//Deallocate the memory on device
 	CUDAErrorOutput(
 		cudaFree(this->device_mem_ptr_),
@@ -44,33 +62,33 @@ void SieveCUDA::DeallocateGPUMemory() {
 	this->device_mem_ptr_ = nullptr;
 }
 
-void SieveCUDA::UploadMemory() {
-	//Copy data to memory
+void SieveCUDABatches::UploadMemory() {
+	//Upload batch on given index
 	CUDAErrorOutput(
 		cudaMemcpy(
 			this->device_mem_ptr_,					//Target
-			this->sieve_mem_ptr_->getMemPtr(),		//Source
-			this->sieve_mem_ptr_->BytesAllocated(),	//Byte count
+			this->batches_[in_i].batch_ptr,			//Source
+			this->batches_[in_i].batch_size,		//Byte count
 			cudaMemcpyHostToDevice					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
 	);
 }
 
-void SieveCUDA::DownloadMemory() {
-	//Download data into memory structure
+void SieveCUDABatches::DownloadMemory() {
+	//Download batch on given index
 	CUDAErrorOutput(
 		cudaMemcpy(
-			this->sieve_mem_ptr_->getMemPtr(),		//Target
+			this->batches_[in_i].batch_ptr,			//Target
 			this->device_mem_ptr_,					//Source
-			this->sieve_mem_ptr_->BytesAllocated(),	//Byte count
-			cudaMemcpyDeviceToHost					//Transfer type
+			this->batches_[in_i].batch_size,		//Byte count
+			cudaMemcpyHostToDevice					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
 	);
 }
 
-void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
+void SieveCUDABatches::LaunchKernel(size_t in_sieve_start) {
 	// Launch a kernel on the GPU with one thread for each element.
 	//	->	block
 	//	->	threads per block (max 1024)
@@ -150,14 +168,14 @@ void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 }
 
 //Public-------------------------------------------------------------------------------------------
-SieveCUDA::SieveCUDA() {
+SieveCUDABatches::SieveCUDABatches() {
 }
 
-SieveCUDA::~SieveCUDA() {
+SieveCUDABatches::~SieveCUDABatches() {
 	//NTS: Do not delete this ptr here
 	this->sieve_mem_ptr_ = nullptr;
 }
 
-void SieveCUDA::LinkMemory(PrimeMemoryBool * in_ptr) {
+void SieveCUDABatches::LinkMemory(PrimeMemoryBool * in_ptr) {
 	this->sieve_mem_ptr_ = in_ptr;
 }
