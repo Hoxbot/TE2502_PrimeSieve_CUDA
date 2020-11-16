@@ -20,6 +20,7 @@ public:
 
 	void SetNonPrime(size_t in_i);
 	void SetPrime(size_t in_i);
+	void FlipPrime(size_t in_i);
 
 	void SetAllNonPrime();
 	void SetAllPrime();

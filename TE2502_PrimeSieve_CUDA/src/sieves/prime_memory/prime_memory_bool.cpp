@@ -39,6 +39,10 @@ void PrimeMemoryBool::SetPrime(size_t in_i) {
 	this->tracker_arr_[in_i] = true;
 }
 
+void PrimeMemoryBool::FlipPrime(size_t in_i) {
+	this->tracker_arr_[in_i] = !this->tracker_arr_[in_i];
+}
+
 void PrimeMemoryBool::SetAllNonPrime() {
 	for (unsigned int i = 0; i < this->arr_size_; i++) {
 		this->SetNonPrime(i);

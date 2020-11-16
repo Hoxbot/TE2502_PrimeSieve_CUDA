@@ -11,8 +11,11 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-//Sieves
+//CPU Sieves
 #include "src/sieves/sieve_eratosthenes_cpu.h"
+#include "src/sieves/sieve_atkin_cpu.h"
+
+//GPGPU Sieves
 #include "src/sieves/sieve_sundaram_cuda.cuh"
 #include "src/sieves/sieve_atkin_cuda.cuh"
 
@@ -56,15 +59,15 @@ int main() {
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
 	//Test, run 1 full block to 2 full blocks
-	//for (size_t i = 1024; i < 2048; i++) {
-	//	std::cout << SieveAtkinCUDA(i).StringifyResults(" ") << std::endl;
-	//}
+	for (size_t i = 1024; i < 2048; i++) {
+		std::cout << SieveAtkinCPU(i).StringifyResults(" ") << std::endl;
+	}
 
 	//Allocation test
-	std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;
-	std::cout << SieveSundaramCUDA(1024).StringifyResults("SECOND") << std::endl;
-	std::cout << SieveSundaramCUDA(2048).StringifyResults("THIRD") << std::endl;
-	std::cout << SieveSundaramCUDA(4096).StringifyResults("FOURTH") << std::endl;
+	//std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;
+	//std::cout << SieveSundaramCUDA(1024).StringifyResults("SECOND") << std::endl;
+	//std::cout << SieveSundaramCUDA(2048).StringifyResults("THIRD") << std::endl;
+	//std::cout << SieveSundaramCUDA(4096).StringifyResults("FOURTH") << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

@@ -87,6 +87,12 @@ void PrimeMemoryBit::SetPrime(size_t in_i) {
 	this->bits_[m.arr_i] |= true << m.bit_i;
 }
 
+void PrimeMemoryBit::FlipPrime(size_t in_i) {
+	//NTS: This function has not been actively tested
+	mem_index m = this->AccessIndex(in_i);
+	this->bits_[m.arr_i] ^= true << m.bit_i;
+}
+
 void PrimeMemoryBit::SetAllNonPrime() {
 	//Start all values as true ("known as primes")
 	for (size_t i = 0; i < this->num_of_bits_; i++) {

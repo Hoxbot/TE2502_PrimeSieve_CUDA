@@ -16,9 +16,12 @@ public:
 
 	virtual void SetNonPrime(size_t in_i) = 0;
 	virtual void SetPrime(size_t in_i) = 0;
+	virtual void FlipPrime(size_t in_i) = 0;
 
 	virtual void SetAllNonPrime() = 0;
 	virtual void SetAllPrime() = 0;
+
+	
 };
 
 #endif // !PRIME_MEMORY_H

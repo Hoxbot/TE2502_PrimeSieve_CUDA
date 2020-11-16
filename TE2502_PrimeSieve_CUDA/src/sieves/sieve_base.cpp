@@ -144,7 +144,7 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	std::string ret_str = "";
 
 	//Set title
-	ret_str += "---" + in_title + "---\n";
+	//ret_str += "---" + in_title + "---\n";
 
 	//Loop over memory, count number of primes found
 	int num_of_p = 0;
@@ -159,10 +159,10 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 
 	//Fill fields:
 	ret_str += "Range:\t\t\t[" + std::to_string(this->start_) + ", " + std::to_string(this->end_) + "]\n";
-	ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
-	//ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
-	//ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
-	ret_str += this->StringifyExecutionTime() + "\n";
+	//ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
+	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
+	ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
+	//ret_str += this->StringifyExecutionTime() + "\n";
 	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
 
 	//Return

@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="src\sieves\prime_memory\prime_memory_bit.cpp" />
     <ClCompile Include="src\sieves\prime_memory\prime_memory_bool.cpp" />
+    <ClCompile Include="src\sieves\sieve_atkin_cpu.cpp" />
     <ClCompile Include="src\sieves\sieve_base.cpp" />
     <ClCompile Include="src\sieves\sieve_eratosthenes_cpu.cpp" />
     <ClCompile Include="src\support\stat_handler.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="src\sieves\prime_memory\prime_memory.h" />
     <ClInclude Include="src\sieves\prime_memory\prime_memory_bit.h" />
     <ClInclude Include="src\sieves\prime_memory\prime_memory_bool.h" />
+    <ClInclude Include="src\sieves\sieve_atkin_cpu.h" />
     <ClInclude Include="src\sieves\sieve_atkin_cuda.cuh" />
     <ClInclude Include="src\sieves\sieve_base.h" />
     <ClInclude Include="src\sieves\sieve_cuda.cuh" />
