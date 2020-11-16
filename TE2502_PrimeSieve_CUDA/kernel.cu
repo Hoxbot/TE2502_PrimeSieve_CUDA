@@ -59,7 +59,7 @@ int main() {
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
 	//----
-	for (size_t i = 900; i < 2048; i++) {
+	for (size_t i = 1367; i < 1371; i++) {
 		std::cout << "#########################################\n";
 		std::cout << "CPU\n";
 		std::cout << SieveAtkinCPU(i).StringifyResults(" ") << std::endl;

@@ -55,6 +55,9 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	// Other NTS: Error probably occurs here
 	// Theory: These lines (that should correct to false) are run BEFORE the kernel
 	// that incorrectly sets true. Its some type of race condition
+	//
+	// Test fix seems to confirm it. Now: keep it on cpu side or do a new cuda launch?
+	/*
 	if (x >= 5 && x*x <= in_n) {
 		if (in_device_memory[x - 1]) {
 			for (size_t y = x*x; y <= in_n; y += x*x) {
@@ -62,6 +65,7 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 			}
 		}
 	}
+	*/
 }
 
 //Private------------------------------------------------------------------------------------------
@@ -92,6 +96,16 @@ void SieveAtkinCUDA::DoSieve() {
 
 	//Deallocate
 	this->DeallocateGPUMemory();
+
+	//Test Fix
+	for (size_t x = 5; x*x <= this->end_; x++) {
+		if (this->mem_class_ptr_->CheckIndex(x - 1)) {
+			for (size_t y = x * x; y <= this->end_; y += x * x) {
+				this->mem_class_ptr_->SetNonPrime(y - 1);
+			}
+		}
+	}
+	//Test Fix
 }
 
 size_t SieveAtkinCUDA::IndexToNumber(size_t in_i) {
