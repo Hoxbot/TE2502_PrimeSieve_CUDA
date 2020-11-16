@@ -50,7 +50,11 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	}
 
 	// NTS: Should this be in the GPGPU function?
-	//Only for 5 and onwards. More path divergence :/
+	// Only for 5 and onwards. More path divergence :/
+	//
+	// Other NTS: Error probably occurs here
+	// Theory: These lines (that should correct to false) are run BEFORE the kernel
+	// that incorrectly sets true. Its some type of race condition
 	if (x >= 5 && x*x <= in_n) {
 		if (in_device_memory[x - 1]) {
 			for (size_t y = x*x; y <= in_n; y += x*x) {

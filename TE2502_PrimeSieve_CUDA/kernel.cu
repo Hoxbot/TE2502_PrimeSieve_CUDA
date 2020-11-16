@@ -59,14 +59,11 @@ int main() {
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
 	//----
-	/*
-	std::cout << "CPU\n";
-	for (size_t i = n; i < 2*n; i++) {
+	for (size_t i = 900; i < 2048; i++) {
+		std::cout << "#########################################\n";
+		std::cout << "CPU\n";
 		std::cout << SieveAtkinCPU(i).StringifyResults(" ") << std::endl;
-	}
-	*/
-	std::cout << "CUDA\n";
-	for (size_t i = 1024; i < 2048; i++) {
+		std::cout << "CUDA\n";
 		std::cout << SieveAtkinCUDA(i).StringifyResults(" ") << std::endl;
 	}
 	//----
