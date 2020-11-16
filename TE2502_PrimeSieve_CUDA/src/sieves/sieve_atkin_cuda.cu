@@ -13,7 +13,7 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	x += in_start;
 
 	//Sieve of Atkins
-	//> For (x^2 < n) and (y^2 < n), x = 1,2,..., y = 1,2,...
+	//> For (x^2 <= n) and (y^2 <= n), x = 1,2,..., y = 1,2,...
 	//> A number is prime if any of the following is true:
 	//>> (z = 4*x*x + y*y) has odd number of solutions	AND	(z % 12 = 1) or (z % 12 = 5)
 	//>> (z = 3*x*x + y*y) has odd number of solutions	AND	(z % 12 = 7)
@@ -32,8 +32,8 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 	//		Two hits (even number of solutions) would then flip false->true->false
 	//Ans:	Yes, apparently.
 
-	if (x*x < in_n) {
-		for (size_t y = 1; y*y < in_n; y++) {
+	if (x*x <= in_n) {
+		for (size_t y = 1; y*y <= in_n; y++) {
 
 			size_t z = (4*x*x) + (y*y);
 			//if (z <= in_n && (z % 12 == 1 || z % 12 == 5)) { in_device_memory[z - 1] = true; }
@@ -51,9 +51,9 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 
 	// NTS: Should this be in the GPGPU function?
 	//Only for 5 and onwards. More path divergence :/
-	if (x >= 5 && x*x < in_n) {
+	if (x >= 5 && x*x <= in_n) {
 		if (in_device_memory[x - 1]) {
-			for (size_t y = x*x; y < in_n; y += x*x) {
+			for (size_t y = x*x; y <= in_n; y += x*x) {
 				in_device_memory[y - 1] = false;
 			}
 		}

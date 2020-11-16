@@ -3,9 +3,9 @@
 //#include <iostream>
 
 //Private------------------------------------------------------------------------------------------
-PrimeMemoryBit::mem_index PrimeMemoryBit::AccessIndex(size_t in_i) {
+PrimeMemoryBit::MemIndex PrimeMemoryBit::AccessIndex(size_t in_i) {
 	//Create mem_index
-	mem_index ret_i;
+	MemIndex ret_i;
 
 	//Determine array index and bit index
 	ret_i.arr_i = in_i / 32;
@@ -54,7 +54,7 @@ bool PrimeMemoryBit::CheckIndex(size_t in_i) {
 
 	//Calc array index and bit index
 	//NTS: Add +1 here since the bit buffer isn't indexed like an array?
-	mem_index m = this->AccessIndex(in_i);
+	MemIndex m = this->AccessIndex(in_i);
 
 	// Create an integer 1		:	0000000...00001
 	// Shift it by bit_i bits	:	00000...1...000
@@ -72,7 +72,7 @@ void PrimeMemoryBit::SetNonPrime(size_t in_i) {
 	//std::cout << "\t>\tMemory Set NonPrime:\t" << in_i << "\n";
 
 	//Set bit to true (&= is bitwise AND, ~is bitwise NOT)
-	mem_index m = this->AccessIndex(in_i);
+	MemIndex m = this->AccessIndex(in_i);
 	this->bits_[m.arr_i] &= ~(true << m.bit_i);
 }
 
@@ -83,13 +83,13 @@ void PrimeMemoryBit::SetPrime(size_t in_i) {
 	//std::cout << "\t>\tMemory Set Prime:\t" << in_i << "\n";
 
 	//Set bit to false (|= is bitwise inclusive OR)
-	mem_index m = this->AccessIndex(in_i);
+	MemIndex m = this->AccessIndex(in_i);
 	this->bits_[m.arr_i] |= true << m.bit_i;
 }
 
 void PrimeMemoryBit::FlipPrime(size_t in_i) {
 	//NTS: This function has not been actively tested
-	mem_index m = this->AccessIndex(in_i);
+	MemIndex m = this->AccessIndex(in_i);
 	this->bits_[m.arr_i] ^= true << m.bit_i;
 }
 

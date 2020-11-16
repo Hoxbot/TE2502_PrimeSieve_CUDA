@@ -58,10 +58,18 @@ int main() {
 	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
-	//Test, run 1 full block to 2 full blocks
-	for (size_t i = 1024; i < 2048; i++) {
+	//----
+	/*
+	std::cout << "CPU\n";
+	for (size_t i = n; i < 2*n; i++) {
 		std::cout << SieveAtkinCPU(i).StringifyResults(" ") << std::endl;
 	}
+	*/
+	std::cout << "CUDA\n";
+	for (size_t i = 1024; i < 2048; i++) {
+		std::cout << SieveAtkinCUDA(i).StringifyResults(" ") << std::endl;
+	}
+	//----
 
 	//Allocation test
 	//std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;

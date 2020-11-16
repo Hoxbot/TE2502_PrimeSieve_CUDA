@@ -6,7 +6,7 @@
 //#include <iostream>
 
 //Private------------------------------------------------------------------------------------------
-float SieveBase::VerifyByFile() {
+SieveBase::VerificationData SieveBase::VerifyByFile() {
 	/*
 	//TEST
 	FILE* file_test = nullptr;
@@ -17,12 +17,16 @@ float SieveBase::VerifyByFile() {
 	//TEST
 	*/
 
+	//Return value struct
+	VerificationData ret_data;
+
+
 	//Constants
 	const char* checkset_path = "resources/primes1_edit.txt";
 	const int checkset_max = 15485863;
 
 	//Return if end number too big
-	if (this->end_ > checkset_max) { return -1.0f; }
+	if (this->end_ > checkset_max) { return ret_data; }
 
 	//Open file
 	FILE* file_ptr = nullptr;
@@ -30,7 +34,7 @@ float SieveBase::VerifyByFile() {
 	error = fopen_s(&file_ptr, checkset_path, "r");
 
 	//Return if file couldn't be opened
-	if (file_ptr == nullptr) { return -1.0f; }
+	if (file_ptr == nullptr) { return ret_data; }
 
 	//Loop over all numbers from [2, n]
 	bool read_next = true;
@@ -67,9 +71,15 @@ float SieveBase::VerifyByFile() {
 		//->If i != that number, i should not be prime (if it is we log miss)
 		//->If i == that number, i should be prime (if it isn't we log miss)
 		//-->Once i == that number we should read the next number
-		if ((i != prime_from_file) && this->IsPrime(i)) { num_of_misses++; }	//NTS: IsPrime() is pure virtual
+		if ((i != prime_from_file) && this->IsPrime(i)) { //NTS: IsPrime() is pure virtual
+			num_of_misses++;
+			ret_data.miss_str += std::to_string(i) + ", ";
+		}
 		else if (i == prime_from_file) {
-			if (!this->IsPrime(i)) { num_of_misses++; }
+			if (!this->IsPrime(i)) { 
+				num_of_misses++;
+				ret_data.miss_str += std::to_string(i) + ", ";
+			}
 			read_next = true;
 		}
 	}
@@ -81,8 +91,13 @@ float SieveBase::VerifyByFile() {
 	size_t nums_in_memory = this->mem_class_ptr_->NumberCapacity();
 	float percentage_correct = (1.0f - ((float)num_of_misses / (float)nums_in_memory))*100;
 
+	//Add data to return struct
+	ret_data.accuracy_str = std::to_string(percentage_correct);
+	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);									//Remove some 0:s
+	if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
+
 	//Return
-	return percentage_correct;
+	return ret_data;
 }
 
 //Public-------------------------------------------------------------------------------------------
@@ -153,17 +168,19 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	}
 
 	//Calculate accuracy and format string
-	float accuracy = this->VerifyByFile();
-	std::string accuracy_str = std::to_string(accuracy);
-	accuracy_str.resize(accuracy_str.size() - 3);	//Remove some 0:s
+	VerificationData v = this->VerifyByFile();
 
 	//Fill fields:
 	ret_str += "Range:\t\t\t[" + std::to_string(this->start_) + ", " + std::to_string(this->end_) + "]\n";
 	//ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
-	ret_str += "Accuracy:\t\t" + accuracy_str + "%\n";
+	ret_str += "Accuracy:\t\t" + v.accuracy_str + "%\n";
+	if (v.miss_str.size() != 0) { ret_str += "Misses:\t\t\t<" + v.miss_str + ">\n"; }
 	//ret_str += this->StringifyExecutionTime() + "\n";
 	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
+
+	//TEMP: Nulls string if accuracy = 100% (means we will only see errors)
+	//if (accuracy == 100.00f) { ret_str = ""; }
 
 	//Return
 	return ret_str;

@@ -10,7 +10,12 @@
 
 class SieveBase {
 private:
-	float VerifyByFile();
+	struct VerificationData {
+		std::string accuracy_str = "";
+		std::string miss_str = "";
+	};
+
+	VerificationData VerifyByFile();
 
 protected:
 	size_t start_ = 0;
@@ -37,6 +42,7 @@ public:
 	std::string StringifyResults(std::string in_title);
 
 	std::vector<size_t> PrimeVector();
+	
 
 	
 };

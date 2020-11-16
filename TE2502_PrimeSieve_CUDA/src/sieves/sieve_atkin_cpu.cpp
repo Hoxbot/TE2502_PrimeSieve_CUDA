@@ -6,7 +6,7 @@
 void SieveAtkinCPU::DoSieve() {
 
 	//Sieve of Atkins
-	//> For (x^2 < n) and (y^2 < n), x = 1,2,..., y = 1,2,...
+	//> For (x^2 <= n) and (y^2 <= n), x = 1,2,..., y = 1,2,...
 	//> A number is prime if any of the following is true:
 	//>> (z = 4*x*x + y*y) has odd number of solutions	AND	(z % 12 = 1) or (z % 12 = 5)
 	//>> (z = 3*x*x + y*y) has odd number of solutions	AND	(z % 12 = 7)
@@ -18,8 +18,8 @@ void SieveAtkinCPU::DoSieve() {
 	//		Two hits (even number of solutions) would then flip false->true->false
 	//Ans:	Yes, apparently.
 
-	for (size_t x = 1; x*x < this->end_; x++) {
-		for (size_t y = 1; y*y < this->end_; y++) {
+	for (size_t x = 1; x*x <= this->end_; x++) {
+		for (size_t y = 1; y*y <= this->end_; y++) {
 
 			size_t z = (4 * x*x) + (y*y);
 			if (z <= this->end_ && (z % 12 == 1 || z % 12 == 5)) { this->mem_class_ptr_->FlipPrime(z - 1); }
@@ -32,9 +32,9 @@ void SieveAtkinCPU::DoSieve() {
 		}
 	}
 
-	for (size_t x = 5; x*x < this->end_; x++) {
+	for (size_t x = 5; x*x <= this->end_; x++) {
 		if (this->mem_class_ptr_->CheckIndex(x - 1)) {
-			for (size_t y = x * x; y < this->end_; y += x*x) {
+			for (size_t y = x * x; y <= this->end_; y += x*x) {
 				this->mem_class_ptr_->SetNonPrime(y - 1);
 			}
 		}

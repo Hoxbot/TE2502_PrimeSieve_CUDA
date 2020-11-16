@@ -5,7 +5,7 @@
 
 class PrimeMemoryBit : public PrimeMemory {
 private:
-	struct mem_index {
+	struct MemIndex {
 		size_t arr_i = 0;
 		size_t bit_i = 0;
 	};
@@ -14,7 +14,7 @@ private:
 	size_t num_of_ints_ = 0;
 	int* bits_ = 0;
 
-	mem_index AccessIndex(size_t in_i);
+	MemIndex AccessIndex(size_t in_i);
 
 public:
 	PrimeMemoryBit(size_t in_size);
