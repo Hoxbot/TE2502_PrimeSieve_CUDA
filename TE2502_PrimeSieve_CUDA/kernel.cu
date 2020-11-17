@@ -44,7 +44,7 @@ int main() {
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
 	*/
 
-	size_t n = 1024;
+	size_t n = 1024*90 + 521;
 
 	//SieveErathosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
@@ -58,15 +58,10 @@ int main() {
 	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
-	//----
-	for (size_t i = 1367; i < 1371; i++) {
-		std::cout << "#########################################\n";
-		std::cout << "CPU\n";
-		std::cout << SieveAtkinCPU(i).StringifyResults(" ") << std::endl;
-		std::cout << "CUDA\n";
-		std::cout << SieveAtkinCUDA(i).StringifyResults(" ") << std::endl;
-	}
-	//----
+
+	std::cout << SieveAtkinCUDA(n).StringifyResults("Atkin A") << std::endl;
+	std::cout << SieveAtkinCUDA(n+1).StringifyResults("Atkin B") << std::endl;
+	
 
 	//Allocation test
 	//std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;

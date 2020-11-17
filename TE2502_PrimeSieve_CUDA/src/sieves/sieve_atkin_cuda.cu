@@ -49,15 +49,9 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 		}
 	}
 
-	// NTS: Should this be in the GPGPU function?
-	// Only for 5 and onwards. More path divergence :/
-	//
-	// Other NTS: Error probably occurs here
-	// Theory: These lines (that should correct to false) are run BEFORE the kernel
-	// that incorrectly sets true. Its some type of race condition
-	//
-	// Test fix seems to confirm it. Now: keep it on cpu side or do a new cuda launch?
-	/*
+	//Wait for other threads to avoid race-condition	
+	__syncthreads();
+
 	if (x >= 5 && x*x <= in_n) {
 		if (in_device_memory[x - 1]) {
 			for (size_t y = x*x; y <= in_n; y += x*x) {
@@ -65,12 +59,22 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 			}
 		}
 	}
-	*/
+	
 }
 
 //Private------------------------------------------------------------------------------------------
 void SieveAtkinCUDA::SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) {
 	AtkinKernel <<<in_blocks, in_threads, 0>>> (in_start, in_end, in_mem_ptr);
+}
+
+void SieveAtkinCUDA::AtkinSquareCleanUp() {
+	for (size_t x = 5; x*x <= this->end_; x++) {
+		if (this->mem_class_ptr_->CheckIndex(x - 1)) {
+			for (size_t y = x * x; y <= this->end_; y += x * x) {
+				this->mem_class_ptr_->SetNonPrime(y - 1);
+			}
+		}
+	}
 }
 
 void SieveAtkinCUDA::DoSieve() {
@@ -97,15 +101,8 @@ void SieveAtkinCUDA::DoSieve() {
 	//Deallocate
 	this->DeallocateGPUMemory();
 
-	//Test Fix
-	for (size_t x = 5; x*x <= this->end_; x++) {
-		if (this->mem_class_ptr_->CheckIndex(x - 1)) {
-			for (size_t y = x * x; y <= this->end_; y += x * x) {
-				this->mem_class_ptr_->SetNonPrime(y - 1);
-			}
-		}
-	}
-	//Test Fix
+	//Optional: If __syncthreads() isn't used in kernel
+	//this->AtkinSquareCleanUp();
 }
 
 size_t SieveAtkinCUDA::IndexToNumber(size_t in_i) {

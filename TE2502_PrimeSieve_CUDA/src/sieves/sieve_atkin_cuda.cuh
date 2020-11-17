@@ -14,6 +14,7 @@ __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory
 class SieveAtkinCUDA : public SieveBase, public SieveCUDA {
 private:
 	void SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr);
+	void AtkinSquareCleanUp();
 
 	void DoSieve();
 	size_t IndexToNumber(size_t in_i);
