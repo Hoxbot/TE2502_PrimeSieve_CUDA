@@ -98,7 +98,7 @@ void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 		unsigned int blocks_in_launch = (full_blocks > max_blocks) ? max_blocks : full_blocks;
 
 		//Launch kernel
-		std::cout << ">>\tLaunching [" << blocks_in_launch << " of " << full_blocks << "] full blocks\n";
+		//std::cout << ">>\tLaunching [" << blocks_in_launch << " of " << full_blocks << "] full blocks\n";
 		//SundaramKernel <<<blocks_in_launch, 1024, 0>>> (alt_start, n, this->device_mem_ptr_);
 		this->SieveKernel(blocks_in_launch, 1024, alt_start, n, this->device_mem_ptr_);
 
@@ -126,7 +126,7 @@ void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 
 	//Launch leftover threads in 1 block //NTS: Will run sequentially, thus start and end must be altered
 	if (excess_threads > 0) {
-		std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
+		//std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
 		//SundaramKernel <<<1, excess_threads, 0>>> (alt_start, n, this->device_mem_ptr_);
 		this->SieveKernel(1, excess_threads, alt_start, n, this->device_mem_ptr_);
 

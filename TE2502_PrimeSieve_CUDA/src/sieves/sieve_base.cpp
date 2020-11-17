@@ -19,7 +19,8 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 
 	//Return value struct
 	VerificationData ret_data;
-
+	std::string missed_primes = "";
+	std::string false_primes = "";
 
 	//Constants
 	const char* checkset_path = "resources/primes1_edit.txt";
@@ -73,12 +74,12 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 		//-->Once i == that number we should read the next number
 		if ((i != prime_from_file) && this->IsPrime(i)) { //NTS: IsPrime() is pure virtual
 			num_of_misses++;
-			ret_data.miss_str += std::to_string(i) + ", ";
+			false_primes += std::to_string(i) + ", ";
 		}
 		else if (i == prime_from_file) {
 			if (!this->IsPrime(i)) { 
 				num_of_misses++;
-				ret_data.miss_str += std::to_string(i) + ", ";
+				missed_primes += std::to_string(i) + ", ";
 			}
 			read_next = true;
 		}
@@ -94,7 +95,11 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 	//Add data to return struct
 	ret_data.accuracy_str = std::to_string(percentage_correct);
 	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);									//Remove some 0:s
-	if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
+	//if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
+	if (!false_primes.empty() || !missed_primes.empty()) {
+		ret_data.miss_str = "False Primes: <" + false_primes + ">";
+		ret_data.miss_str += "Missed Primes: <" + missed_primes + ">";
+	}
 
 	//Return
 	return ret_data;
@@ -175,12 +180,12 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
 	ret_str += "Accuracy:\t\t" + v.accuracy_str + "%\n";
-	if (v.miss_str.size() != 0) { ret_str += "Misses:\t\t\t<" + v.miss_str + ">\n"; }
-	ret_str += this->StringifyExecutionTime() + "\n";
+	if (v.miss_str.size() != 0) { ret_str += "Misses:\t\t\t[" + v.miss_str + "]\n"; }
+	//ret_str += this->StringifyExecutionTime() + "\n";
 	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
 
-	//TEMP: Nulls string if accuracy = 100% (means we will only see errors)
-	//if (accuracy == 100.00f) { ret_str = ""; }
+	//TEMP: Nulls string if accuracy_tring is empty (means we will only see errors)
+	if (v.miss_str.empty()) { ret_str = ""; } else { ret_str += "\n"; }
 
 	//Return
 	return ret_str;
