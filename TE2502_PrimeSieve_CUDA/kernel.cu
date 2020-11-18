@@ -17,6 +17,7 @@
 
 //GPGPU Sieves
 #include "src/sieves/sieve_sundaram_cuda.cuh"
+#include "src/sieves/sieve_sundaram_cuda_batches.cuh"
 #include "src/sieves/sieve_atkin_cuda.cuh"
 
 //Misc
@@ -32,7 +33,7 @@ int main() {
 	//---
 	std::cout << "<Program Start>" << std::endl;
 
-	/*
+	
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
 	std::cout 
@@ -42,9 +43,10 @@ int main() {
 		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
 		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n"
 		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
-	*/
+	
 
-	size_t n = 1024*90 + 522;
+	//size_t n = 1024*90 + 522;
+	size_t n = 22;
 
 	//SieveErathosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
@@ -54,6 +56,10 @@ int main() {
 	//std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 
+	SieveSundaramCUDABatches sundaramB(n);
+	std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
+	std::cout << sundaramB.StringifyTrackerArr() << std::endl;
+
 	//SieveAtkinCUDA atkinA(n);
 	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
@@ -62,11 +68,14 @@ int main() {
 	//std::cout << SieveAtkinCUDA(n-1).StringifyResults("Atkin A") << std::endl;
 	//std::cout << SieveAtkinCUDA(n).StringifyResults("Atkin B") << std::endl;
 	
-	for (size_t i = 100; i <= 200; i++) {
-		//std::cout << SieveAtkinCUDA(n-1).StringifyResults("Atkins error at n=" + std::to_string(i));
-		std::cout << SieveSundaramCUDA(n-1).StringifyResults("Sundaram error at n=" + std::to_string(i));
+	
+	//for (size_t i = 100; i <= 200; i++) {
+	//	std::cout << SieveAtkinCUDA(n-1).StringifyResults("Atkins error at n=" + std::to_string(i));
+	//	//std::cout << SieveSundaramCUDA(n-1).StringifyResults("Sundaram error at n=" + std::to_string(i));
+	//}
 
-	}
+	//std::cout << SieveAtkinCPU(n-1).StringifyResults("CPU");
+	//std::cout << SieveAtkinCUDA(n-1).StringifyResults("CUDA");
 
 	//Allocation test
 	//std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;

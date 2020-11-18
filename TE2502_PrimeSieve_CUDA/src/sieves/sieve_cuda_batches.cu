@@ -5,11 +5,13 @@
 //Private------------------------------------------------------------------------------------------
 
 //Protected----------------------------------------------------------------------------------------
-void SieveCUDABatches::AllocateGPUMemory() {
+void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_end) {
 	//Get GPU limitations
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
-	size_t gpu_global_mem_capacity = prop.totalGlobalMem;
+	//size_t gpu_global_mem_capacity = prop.totalGlobalMem;
+	size_t gpu_global_mem_capacity = 3;
+
 
 	//Fetch the number of bytes stored on the CPU side memory
 	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();
@@ -17,19 +19,26 @@ void SieveCUDABatches::AllocateGPUMemory() {
 	//If the more bytes are required than the GPU can hold
 	//we index additional batches, partitioning the numbers
 	size_t batch_num = 0;
-	void* mem_ptr = this->sieve_mem_ptr_->getMemPtr();
+	bool* mem_ptr = static_cast<bool*>(this->sieve_mem_ptr_->getMemPtr());
 	while (bytes_to_allocate > gpu_global_mem_capacity) {
 
 		Batch b;
 
 		size_t offset = batch_num * gpu_global_mem_capacity;
 
-		b.batch_ptr = static_cast<bool*>(mem_ptr) + offset;	//Batch starts a number of bytes into cpu memory
-		b.batch_size = gpu_global_mem_capacity;				//Size of batch
-		b.batch_start_index = offset;						//The index (in cpu memory) the memory starts at
+		//Calculate the adress in the memory the batch starts at
+		//as well as the size of the batch
+		b.batch_ptr = mem_ptr + offset;
+		b.batch_size = gpu_global_mem_capacity;
+		
+		//Calculate the first and last number that are part of the batch
+		b.batch_start_number = in_sieve_start + offset;
+		b.batch_end_number = b.batch_start_number + b.batch_size - 1;
 
+		//Save batch
 		this->batches_.push_back(b);
 
+		//Prep for next iteration
 		batch_num++;
 		bytes_to_allocate -= gpu_global_mem_capacity;
 	}
@@ -37,9 +46,17 @@ void SieveCUDABatches::AllocateGPUMemory() {
 	//Repeat process for the one batch that isn't overfull 
 	Batch b;
 	size_t offset = batch_num * gpu_global_mem_capacity;
-	b.batch_ptr = static_cast<bool*>(mem_ptr) + offset;		//Batch starts a number of bytes into cpu memory
-	b.batch_size = bytes_to_allocate;						//Size of batch
-	b.batch_start_index = offset;							//The index (in cpu memory) the memory starts at
+	
+	//Calculate the adress in the memory the batch starts at
+	//as well as the size of the batch (remaining bytes in this case)
+	b.batch_ptr = static_cast<bool*>(mem_ptr) + offset;
+	b.batch_size = bytes_to_allocate;
+
+	//Calculate the first and last number that are part of the batch
+	b.batch_start_number = in_sieve_start + offset;
+	b.batch_end_number = b.batch_start_number + b.batch_size - 1;
+
+	//Save batch
 	this->batches_.push_back(b);
 	batch_num++;
 
@@ -83,34 +100,32 @@ void SieveCUDABatches::DownloadMemory(size_t in_i) {
 			this->batches_[in_i].batch_ptr,			//Target
 			this->device_mem_ptr_,					//Source
 			this->batches_[in_i].batch_size,		//Byte count
-			cudaMemcpyHostToDevice					//Transfer type
+			cudaMemcpyDeviceToHost					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
 	);
 }
 
-void SieveCUDABatches::LaunchKernel(size_t in_sieve_start) {
+void SieveCUDABatches::LaunchKernel(size_t in_batch_index) {
 	// Launch a kernel on the GPU with one thread for each element.
 	//	->	block
 	//	->	threads per block (max 1024)
 	//	->	size of shared memory
 		//NTS:	unsigned int, not size_t. Need to fix safe conversion?
 		//		Excess threads are fine, cannot be more than 1024 which fits
-	unsigned int full_blocks = this->sieve_mem_ptr_->NumberCapacity() / 1024;	//Number of full blocks
-	unsigned int excess_threads = this->sieve_mem_ptr_->NumberCapacity() % 1024;		//Number of threads not handled by full blocks
-	//size_t bytes = this->mem_class_ptr_->BytesAllocated();					//Number of bytes to be in shared memory //NTS: Everything is in global, no shared needed 
+	unsigned int full_blocks = this->batches_[in_batch_index].batch_size / 1024;		//Number of full blocks in this batch
+	unsigned int excess_threads = this->batches_[in_batch_index].batch_size % 1024;		//Number of threads not handled by full blocks
 
-	//Get where sieving should end
-	size_t n = this->sieve_mem_ptr_->NumberCapacity();
+	//Calculate the number where sieving should start at in this batch
+	size_t alt_start = this->batches_[in_batch_index].batch_start_number;
 
-	//If there are to be several kernel launches we need to figure out
-	//where the subsequent blocks should start
-	size_t alt_start = in_sieve_start;
+	//Calculate the number where sieving should end in this batch
+	size_t alt_end = this->batches_[in_batch_index].batch_end_number;
 
-	//Launch full blocks with 1024 threads	
-	//NTS: A kernel can have 48 blocks at maximum? : no : 2^31 - 1?
+	//------
+
+	//Launch full blocks with 1024 threads
 	unsigned int max_blocks = 2147483647;
-	//size_t max_blocks = 2;
 	while (full_blocks > 0) {
 
 		//Determine number of blocks in launch
@@ -119,7 +134,7 @@ void SieveCUDABatches::LaunchKernel(size_t in_sieve_start) {
 		//Launch kernel
 		std::cout << ">>\tLaunching [" << blocks_in_launch << " of " << full_blocks << "] full blocks\n";
 		//SundaramKernel <<<blocks_in_launch, 1024, 0>>> (alt_start, n, this->device_mem_ptr_);
-		this->SieveKernel(blocks_in_launch, 1024, alt_start, n, this->device_mem_ptr_);
+		this->SieveKernel(blocks_in_launch, 1024, alt_start, alt_end, this->device_mem_ptr_);
 
 		//Decrease number of remaining blocks
 		//Move kernel starting value
@@ -147,7 +162,7 @@ void SieveCUDABatches::LaunchKernel(size_t in_sieve_start) {
 	if (excess_threads > 0) {
 		std::cout << ">>\tLaunching [" << excess_threads << "] excess threads\n";
 		//SundaramKernel <<<1, excess_threads, 0>>> (alt_start, n, this->device_mem_ptr_);
-		this->SieveKernel(1, excess_threads, alt_start, n, this->device_mem_ptr_);
+		this->SieveKernel(1, excess_threads, alt_start, alt_end, this->device_mem_ptr_);
 
 		// Check for any errors launching the kernel
 		CUDAErrorOutput(

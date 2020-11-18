@@ -1,18 +1,50 @@
 #include "sieve_sundaram_cuda_batches.cuh"
 
 //CUDA---------------------------------------------------------------------------------------------
-__global__ void SundaramKernel(size_t in_start, size_t in_n, bool* in_device_memory, size_t in_batch_offset) {
+__global__ void SundaramBatchKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
+	//Get the thread's index
+	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 
+	//in_device_memory[i] = !in_device_memory[i];
+
+	in_device_memory[i] = (in_start % 2 == 0);
+
+	/*
+	//The first cuda thread has id 0
+	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
+	i += in_start;
+
+	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
+	for (size_t j = i; (i + j + 2 * i*j) <= in_n; j++) {
+		in_device_memory[(i + j + 2 * i*j) - 1] = false;		// NTS: (-1) offsets to correct array index since indexing starts at 0
+	}
+	*/
 }
 
 
 //Private------------------------------------------------------------------------------------------
 void SieveSundaramCUDABatches::SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool * in_mem_ptr) {
-	//SundaramKernel << <in_blocks, in_threads, 0 >> > (in_start, in_end, in_mem_ptr);
+	SundaramBatchKernel <<<in_blocks, in_threads, 0>>> (in_start, in_end, in_mem_ptr);
 }
 
 void SieveSundaramCUDABatches::DoSieve() {
-	//WORKING HERE: Fix batch scheduling and rework Sundaram CUDA function
+	//Allocate
+	this->AllocateGPUMemory(this->start_, this->end_);
+
+	for (size_t i = 0; i < this->batches_.size(); i++) {
+		//Upload batch
+		this->UploadMemory(i);
+
+		//Launch work-groups
+		this->LaunchKernel(i);
+
+		//Download batch
+		this->DownloadMemory(i);
+	}
+
+	//Deallocate
+	this->DeallocateGPUMemory();
+
 }
 
 size_t SieveSundaramCUDABatches::IndexToNumber(size_t in_i) {

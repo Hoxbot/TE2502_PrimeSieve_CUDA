@@ -8,7 +8,7 @@
 #include "sieve_cuda_batches.cuh"
 
 //CUDA Stuff
-__global__ void SundaramKernel(size_t in_start, size_t in_n, bool* in_device_memory, size_t in_batch_offset);
+__global__ void SundaramBatchKernel(size_t in_start, size_t in_n, bool* in_device_memory);
 
 //Class
 class SieveSundaramCUDABatches : public SieveBase, public SieveCUDABatches {

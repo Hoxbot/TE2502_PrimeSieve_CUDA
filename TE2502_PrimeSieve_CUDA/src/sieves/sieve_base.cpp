@@ -97,7 +97,7 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);									//Remove some 0:s
 	//if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
 	if (!false_primes.empty() || !missed_primes.empty()) {
-		ret_data.miss_str = "False Primes: <" + false_primes + ">";
+		ret_data.miss_str = "False Primes: <" + false_primes + ">\t";
 		ret_data.miss_str += "Missed Primes: <" + missed_primes + ">";
 	}
 
@@ -185,7 +185,7 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
 
 	//TEMP: Nulls string if accuracy_tring is empty (means we will only see errors)
-	if (v.miss_str.empty()) { ret_str = ""; } else { ret_str += "\n"; }
+	//if (v.miss_str.empty()) { ret_str = ""; } else { ret_str += "\n"; }
 
 	//Return
 	return ret_str;

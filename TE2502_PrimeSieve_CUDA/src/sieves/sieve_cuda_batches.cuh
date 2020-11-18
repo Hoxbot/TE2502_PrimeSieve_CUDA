@@ -13,9 +13,12 @@ class SieveCUDABatches {
 private:
 	struct Batch {
 		//Batch(size_t i, size_t s) { batch_index = i; batch_size = s; }
-		void* batch_ptr;
+		bool* batch_ptr;
 		size_t batch_size;
-		size_t batch_start_index;
+		//size_t batch_start_index;
+
+		size_t batch_start_number;
+		size_t batch_end_number;
 	};
 
 	//size_t gpu_global_mem_capacity_;
@@ -24,14 +27,14 @@ private:
 	PrimeMemoryBool* sieve_mem_ptr_ = nullptr;
 	bool* device_mem_ptr_ = nullptr;
 
+protected:
 	std::vector<Batch> batches_;
 
-protected:
-	void AllocateGPUMemory();
+	void AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_end);
 	void DeallocateGPUMemory();
 	void UploadMemory(size_t in_i);
 	void DownloadMemory(size_t in_i);
-	void LaunchKernel(size_t in_sieve_start);
+	void LaunchKernel(size_t in_batch_index);
 
 	virtual void SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) = 0;
 
