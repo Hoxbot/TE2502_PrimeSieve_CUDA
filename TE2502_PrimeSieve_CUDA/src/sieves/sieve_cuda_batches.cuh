@@ -15,8 +15,7 @@ private:
 		//Batch(size_t i, size_t s) { batch_index = i; batch_size = s; }
 		bool* batch_ptr;
 		size_t batch_size;
-		//size_t batch_start_index;
-
+		
 		size_t batch_start_number;
 		size_t batch_end_number;
 	};
@@ -29,6 +28,7 @@ private:
 
 protected:
 	std::vector<Batch> batches_;
+	size_t threads_per_batch_;
 
 	void AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_end);
 	void DeallocateGPUMemory();
@@ -36,7 +36,14 @@ protected:
 	void DownloadMemory(size_t in_i);
 	void LaunchKernel(size_t in_batch_index);
 
-	virtual void SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool* in_mem_ptr) = 0;
+	virtual void SieveKernel(
+		unsigned int in_blocks,
+		unsigned int in_threads,
+		size_t in_start,
+		size_t in_end,
+		size_t in_generation,
+		bool* in_mem_ptr
+	) = 0;
 
 public:
 	SieveCUDABatches();

@@ -181,7 +181,7 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
 	ret_str += "Accuracy:\t\t" + v.accuracy_str + "%\n";
 	if (v.miss_str.size() != 0) { ret_str += "Misses:\t\t\t[" + v.miss_str + "]\n"; }
-	//ret_str += this->StringifyExecutionTime() + "\n";
+	ret_str += this->StringifyExecutionTime() + "\n";
 	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
 
 	//TEMP: Nulls string if accuracy_tring is empty (means we will only see errors)

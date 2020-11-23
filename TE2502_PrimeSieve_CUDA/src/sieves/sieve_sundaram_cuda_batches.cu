@@ -1,30 +1,60 @@
 #include "sieve_sundaram_cuda_batches.cuh"
 
 //CUDA---------------------------------------------------------------------------------------------
-__global__ void SundaramBatchKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
+__global__ void SundaramBatchKernel(
+	size_t in_start, 
+	size_t in_end, 
+	size_t in_generation, 
+	size_t in_batch_size, 
+	bool* in_device_memory
+) {
 	//Get the thread's index
 	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 
-	//in_device_memory[i] = !in_device_memory[i];
+	//Test: Flips every other generation true/false
+	//in_device_memory[i] = (in_generation % 2 == 0);
 
-	in_device_memory[i] = (in_start % 2 == 0);
-
-	/*
+	//---BATCH CURRENT GENERATION---
 	//The first cuda thread has id 0
 	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
 	i += in_start;
 
 	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
-	for (size_t j = i; (i + j + 2 * i*j) <= in_n; j++) {
-		in_device_memory[(i + j + 2 * i*j) - 1] = false;		// NTS: (-1) offsets to correct array index since indexing starts at 0
+	for (size_t j = i; (i + j + 2 * i*j) <= in_end; j++) {
+		in_device_memory[(i + j + 2 * i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index
 	}
-	*/
+
+	//---BATCH EARLIER GENERATIONS---
+	//>	Earlier batches will not have had access to the memory space of this batch.
+	//>	For each earlier batch with the same thread position (ergo: i), find the
+	//	first j that reaches into this batch's memory space
+	//>	Iterate j:s until we reach the end of the batch
+	for (size_t g = 0; g < in_generation; g++) {
+		//Jump back one batch size to find the i of the previous generation
+		i =- in_batch_size;
+
+		//Compute which j is the first to reach into the current batch's memory space
+		//j >= i, so we never start from a j less than i (thus fmaxf())
+		float j_start = fmaxf(ceilf((in_start - i) / (2 * i + 1)), i);
+
+		//Run iterations until we reach the end of span (in_end)
+		for (size_t j = j_start; (i + j + 2*i*j) <= in_end; j++) {
+			in_device_memory[(i + j + 2*i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index
+		}
+	}
 }
 
 
 //Private------------------------------------------------------------------------------------------
-void SieveSundaramCUDABatches::SieveKernel(unsigned int in_blocks, unsigned int in_threads, size_t in_start, size_t in_end, bool * in_mem_ptr) {
-	SundaramBatchKernel <<<in_blocks, in_threads, 0>>> (in_start, in_end, in_mem_ptr);
+void SieveSundaramCUDABatches::SieveKernel(
+	unsigned int in_blocks, 
+	unsigned int in_threads, 
+	size_t in_start, 
+	size_t in_end, 
+	size_t in_generation, 
+	bool * in_mem_ptr
+) {
+	SundaramBatchKernel <<<in_blocks, in_threads, 0>>> (in_start, in_end, in_generation, this->threads_per_batch_, in_mem_ptr);
 }
 
 void SieveSundaramCUDABatches::DoSieve() {

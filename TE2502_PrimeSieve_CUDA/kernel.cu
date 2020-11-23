@@ -46,7 +46,7 @@ int main() {
 	
 
 	//size_t n = 1024*90 + 522;
-	size_t n = 22;
+	size_t n = 22*2;
 
 	//SieveErathosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
