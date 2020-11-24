@@ -36,17 +36,20 @@ int main() {
 	
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
-	std::cout 
+	std::cout
 		<< "\t---CPU SIDE---\n"
 		<< "\tMax allocation capacity (bytes):\t" << SIZE_MAX << "\n"
 		<< "\t---CUDA SIDE---\n"
 		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
 		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n"
-		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n";
+		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n"
+		<< "\t---DATA TYPES---\n"
+		<< "\tUnsigned int max:\t\t\t" << UINT_MAX << "\n"
+		<< "\n\n";
 	
 
 	//size_t n = 1024*90 + 522;
-	size_t n = 22*2;
+	size_t n = 1024;
 
 	//SieveErathosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
@@ -58,7 +61,7 @@ int main() {
 
 	SieveSundaramCUDABatches sundaramB(n);
 	std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
-	std::cout << sundaramB.StringifyTrackerArr() << std::endl;
+	//std::cout << sundaramB.StringifyTrackerArr() << std::endl;
 
 	//SieveAtkinCUDA atkinA(n);
 	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;

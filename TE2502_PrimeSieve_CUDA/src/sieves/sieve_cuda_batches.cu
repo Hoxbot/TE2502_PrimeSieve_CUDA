@@ -11,18 +11,15 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	//Get GPU limitations
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
-	//size_t gpu_global_mem_capacity = prop.totalGlobalMem;
-	size_t gpu_global_mem_capacity = 3;
+	size_t gpu_global_mem_capacity = prop.totalGlobalMem;
+	//size_t gpu_global_mem_capacity = 17;
 
 	//Fetch the number of bytes stored on the CPU side memory
 	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();
 
 	//The number of threads we need to launch is dependent on
 	//if there are more bytes than the GPU can hold.
-	//>	Either we only need one batch with X threads
-	//>	Or we need to launch the maximum amount of threads in
-	//	all batches to cover all numbers
-	this->threads_per_batch_ = std::max(bytes_to_allocate, gpu_global_mem_capacity);
+	this->threads_per_batch_ = std::min(bytes_to_allocate, gpu_global_mem_capacity);
 	
 	//Index the batches to be launched with:
 	//>	A pointer to the memory they start at
@@ -31,7 +28,8 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	//size_t batch_num = 0;
 	bool* mem_ptr = static_cast<bool*>(this->sieve_mem_ptr_->getMemPtr());
 
-	size_t batches_required = (bytes_to_allocate / gpu_global_mem_capacity) + 1;
+	size_t batches_required = (bytes_to_allocate / gpu_global_mem_capacity);		//Number of full batches
+	if (bytes_to_allocate % gpu_global_mem_capacity != 0) { batches_required++; }	//If there are any leftover numbers
 
 	for (size_t batch_num = 0; batch_num < batches_required; batch_num++) {
 		//Create batch and calculate its offset
@@ -42,7 +40,10 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 		b.batch_ptr = mem_ptr + offset;
 
 		//Calculate how big the batch is
-		b.batch_size = (batch_num + 1 == batches_required) ? (bytes_to_allocate % gpu_global_mem_capacity) : gpu_global_mem_capacity;
+		//b.batch_size = (batch_num + 1 == batches_required) ? (bytes_to_allocate % gpu_global_mem_capacity) : gpu_global_mem_capacity;
+		b.batch_size = std::min(bytes_to_allocate, gpu_global_mem_capacity);
+		bytes_to_allocate -= gpu_global_mem_capacity;
+
 
 		//Calculate the first and last number that is part of the batch
 		b.batch_start_number = in_sieve_start + offset;

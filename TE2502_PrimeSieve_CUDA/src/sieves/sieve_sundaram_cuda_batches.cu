@@ -9,7 +9,9 @@ __global__ void SundaramBatchKernel(
 	bool* in_device_memory
 ) {
 	//Get the thread's index
-	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+	//unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+	size_t i = blockIdx.x*blockDim.x + threadIdx.x;
+
 
 	//Test: Flips every other generation true/false
 	//in_device_memory[i] = (in_generation % 2 == 0);
@@ -20,28 +22,39 @@ __global__ void SundaramBatchKernel(
 	i += in_start;
 
 	//De-list all numbers that fullful the condition: (i + j + 2*i*j) <= n
-	for (size_t j = i; (i + j + 2 * i*j) <= in_end; j++) {
-		in_device_memory[(i + j + 2 * i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index
+	for (size_t j = i; (i + j + 2*i*j) <= in_end; j++) {
+		in_device_memory[(i + j + 2*i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index
 	}
+	
+	//WORKING HERE: for several batches the catch up function does not do anything 
 
 	//---BATCH EARLIER GENERATIONS---
-	//>	Earlier batches will not have had access to the memory space of this batch.
+	//>	Earlier batches would not have had access to the memory space of this batch.
 	//>	For each earlier batch with the same thread position (ergo: i), find the
 	//	first j that reaches into this batch's memory space
 	//>	Iterate j:s until we reach the end of the batch
 	for (size_t g = 0; g < in_generation; g++) {
 		//Jump back one batch size to find the i of the previous generation
-		i =- in_batch_size;
+		i -= in_batch_size;
 
 		//Compute which j is the first to reach into the current batch's memory space
-		//j >= i, so we never start from a j less than i (thus fmaxf())
-		float j_start = fmaxf(ceilf((in_start - i) / (2 * i + 1)), i);
+		float j_start = ceilf((float)(in_start - i) / ((2 * i) + 1));
+		//size_t a = in_start - i;
+		//size_t b = 2 * i + 1;
+		//float j_start = ceil((float)a/(float)b);
+		
+		//Remember that j >= i, so we never start from a j less than i
+		j_start = fmaxf(j_start, i); 
+		//If j_start is set to i
+		//-> then 2*i + 2*i^2 > in_end
+		//-> and the for-loop below breaks instantly
 
 		//Run iterations until we reach the end of span (in_end)
 		for (size_t j = j_start; (i + j + 2*i*j) <= in_end; j++) {
 			in_device_memory[(i + j + 2*i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index
 		}
 	}
+	
 }
 
 
