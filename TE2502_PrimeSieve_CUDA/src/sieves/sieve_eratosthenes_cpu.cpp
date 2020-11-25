@@ -3,7 +3,7 @@
 //#include <iostream>
 
 //Private------------------------------------------------------------------------------------------
-void SieveErathosthenesCPU::DoSieve() {
+void SieveEratosthenesCPU::DoSieve() {
 	unsigned int root_of_end = std::sqrt(this->end_) + 1;	//NTS:	As noted in the following comment, all composite numbers
 															//		lower than i^2 for a given i has already been calculated
 															//		for previous (lower) i:s.
@@ -25,13 +25,13 @@ void SieveErathosthenesCPU::DoSieve() {
 	}
 }
 
-size_t SieveErathosthenesCPU::IndexToNumber(size_t in_i) {
+size_t SieveEratosthenesCPU::IndexToNumber(size_t in_i) {
 	return this->start_ + in_i;
 }
 
 
 //Public-------------------------------------------------------------------------------------------
-SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
+SieveEratosthenesCPU::SieveEratosthenesCPU(size_t in_n)// {
 	: SieveBase(2, in_n) {
 
 	//Determine memory capacity needed
@@ -51,14 +51,14 @@ SieveErathosthenesCPU::SieveErathosthenesCPU(size_t in_n)// {
 
 }
 
-SieveErathosthenesCPU::~SieveErathosthenesCPU() {
+SieveEratosthenesCPU::~SieveEratosthenesCPU() {
 	if (this->mem_class_ptr_ != nullptr) {
 		delete this->mem_class_ptr_;
 		this->mem_class_ptr_ = nullptr;
 	}
 }
 
-bool SieveErathosthenesCPU::IsPrime(size_t in_num) {
+bool SieveEratosthenesCPU::IsPrime(size_t in_num) {
 	//Everything outside scope is false
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
 	//Otherwise return the stored bool for that value

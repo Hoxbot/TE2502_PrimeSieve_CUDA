@@ -3,7 +3,7 @@
 
 #include "sieve_base.h"
 
-class SieveErathosthenesCPU : public SieveBase {
+class SieveEratosthenesCPU : public SieveBase {
 private:
 	//size_t start_ = 0;
 	//size_t end_ = 0;
@@ -12,8 +12,8 @@ private:
 	void DoSieve();
 	size_t IndexToNumber(size_t in_i);
 public:
-	SieveErathosthenesCPU(size_t in_n);
-	~SieveErathosthenesCPU();
+	SieveEratosthenesCPU(size_t in_n);
+	~SieveEratosthenesCPU();
 
 	bool IsPrime(size_t in_num);
 };

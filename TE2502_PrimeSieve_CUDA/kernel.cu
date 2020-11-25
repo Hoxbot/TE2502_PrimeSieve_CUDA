@@ -51,9 +51,9 @@ int main() {
 
 	//size_t n = 1024*90 + 522;
 	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
-	size_t n = 20;
+	size_t n = 1024*90;
 
-	//SieveErathosthenesCPU eratosthenesA(n);
+	//SieveEratosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
@@ -87,10 +87,10 @@ int main() {
 	//std::cout << SieveAtkinCUDA(n-1).StringifyResults("CUDA");
 
 	//Allocation test
-	std::cout << SieveSundaramCPU(1020).StringifyResults("FIRST") << std::endl;
-	std::cout << SieveSundaramCPU(4521).StringifyResults("SECOND") << std::endl;
-	std::cout << SieveSundaramCPU(9022).StringifyResults("THIRD") << std::endl;
-	std::cout << SieveSundaramCPU(12023).StringifyResults("FOURTH") << std::endl;
+	std::cout << SieveEratosthenesCPU(n).StringifyResults("FIRST") << std::endl;
+	std::cout << SieveSundaramCPU(n).StringifyResults("SECOND") << std::endl;
+	std::cout << SieveAtkinCPU(n).StringifyResults("THIRD") << std::endl;
+	//std::cout << SieveSundaramCPU(12023).StringifyResults("FOURTH") << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
