@@ -13,6 +13,7 @@
 
 //CPU Sieves
 #include "src/sieves/sieve_eratosthenes_cpu.h"
+#include "src/sieves/sieve_sundaram_cpu.h"
 #include "src/sieves/sieve_atkin_cpu.h"
 
 //GPGPU Sieves
@@ -50,19 +51,23 @@ int main() {
 
 	//size_t n = 1024*90 + 522;
 	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
-	size_t n = 2048;
+	size_t n = 20;
 
 	//SieveErathosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	//SieveSundaramCUDA sundaramA(n);
-	//std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
+	//SieveSundaramCPU sundaramA(n);
+	//std::cout << sundaramA.StringifyResults("SUNDARAM CPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
-
-	//SieveSundaramCUDABatches sundaramB(n);
-	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
+	
+	//SieveSundaramCUDA sundaramB(n);
+	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramB.StringifyTrackerArr() << std::endl;
+
+	//SieveSundaramCUDABatches sundaramC(n);
+	//std::cout << sundaramC.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
+	//std::cout << sundaramC.StringifyTrackerArr() << std::endl;
 
 	//SieveAtkinCUDA atkinA(n);
 	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
@@ -82,10 +87,10 @@ int main() {
 	//std::cout << SieveAtkinCUDA(n-1).StringifyResults("CUDA");
 
 	//Allocation test
-	//std::cout << SieveSundaramCUDA(1024).StringifyResults("FIRST") << std::endl;
-	//std::cout << SieveSundaramCUDA(1024).StringifyResults("SECOND") << std::endl;
-	//std::cout << SieveSundaramCUDA(2048).StringifyResults("THIRD") << std::endl;
-	//std::cout << SieveSundaramCUDA(4096).StringifyResults("FOURTH") << std::endl;
+	std::cout << SieveSundaramCPU(1020).StringifyResults("FIRST") << std::endl;
+	std::cout << SieveSundaramCPU(4521).StringifyResults("SECOND") << std::endl;
+	std::cout << SieveSundaramCPU(9022).StringifyResults("THIRD") << std::endl;
+	std::cout << SieveSundaramCPU(12023).StringifyResults("FOURTH") << std::endl;
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
