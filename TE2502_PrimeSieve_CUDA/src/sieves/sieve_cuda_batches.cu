@@ -12,7 +12,7 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
 	size_t gpu_global_mem_capacity = prop.totalGlobalMem;
-	//size_t gpu_global_mem_capacity = 17;
+	//size_t gpu_global_mem_capacity = 5;
 
 	//Fetch the number of bytes stored on the CPU side memory
 	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();

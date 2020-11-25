@@ -49,7 +49,8 @@ int main() {
 	
 
 	//size_t n = 1024*90 + 522;
-	size_t n = 1024;
+	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
+	size_t n = 2048;
 
 	//SieveErathosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
@@ -59,8 +60,8 @@ int main() {
 	//std::cout << sundaramA.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 
-	SieveSundaramCUDABatches sundaramB(n);
-	std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
+	//SieveSundaramCUDABatches sundaramB(n);
+	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
 	//std::cout << sundaramB.StringifyTrackerArr() << std::endl;
 
 	//SieveAtkinCUDA atkinA(n);

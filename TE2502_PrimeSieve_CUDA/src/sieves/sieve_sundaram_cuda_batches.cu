@@ -1,5 +1,7 @@
 #include "sieve_sundaram_cuda_batches.cuh"
 
+#include <iostream>
+
 //CUDA---------------------------------------------------------------------------------------------
 __global__ void SundaramBatchKernel(
 	size_t in_start, 
@@ -74,9 +76,13 @@ void SieveSundaramCUDABatches::DoSieve() {
 	//Allocate
 	this->AllocateGPUMemory(this->start_, this->end_);
 
+	std::cout << "> Num of Batches: " << this->batches_.size() << "\n";
+
 	for (size_t i = 0; i < this->batches_.size(); i++) {
 		//Upload batch
 		this->UploadMemory(i);
+
+		std::cout << "> Launching Batch: " << i << "\n";
 
 		//Launch work-groups
 		this->LaunchKernel(i);
