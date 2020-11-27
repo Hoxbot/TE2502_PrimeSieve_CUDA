@@ -16,6 +16,7 @@ private:
 	};
 
 	VerificationData VerifyByFile();
+	VerificationData VerifyByRabinMiller();
 
 protected:
 	size_t start_ = 0;

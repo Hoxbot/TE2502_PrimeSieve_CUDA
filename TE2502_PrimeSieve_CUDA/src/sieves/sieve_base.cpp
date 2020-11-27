@@ -94,7 +94,7 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 
 	//Add data to return struct
 	ret_data.accuracy_str = std::to_string(percentage_correct);
-	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);									//Remove some 0:s
+	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);										//Remove some 0:s
 	//if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
 	if (!false_primes.empty() || !missed_primes.empty()) {
 		ret_data.miss_str = "False Primes: <" + false_primes + ">\t";
@@ -103,6 +103,15 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 
 	//Return
 	return ret_data;
+}
+
+SieveBase::VerificationData SieveBase::VerifyByRabinMiller() {
+	//Return value struct
+	VerificationData ret_data;
+	std::string missed_primes = "";
+	std::string false_primes = "";
+
+	//
 }
 
 //Public-------------------------------------------------------------------------------------------

@@ -82,7 +82,7 @@ void SieveCUDA::LaunchKernel(size_t in_sieve_start) {
 	//size_t bytes = this->mem_class_ptr_->BytesAllocated();					//Number of bytes to be in shared memory //NTS: Everything is in global, no shared needed 
 
 	//Get where sieving should end
-	size_t n = this->sieve_mem_ptr_->NumberCapacity();
+	size_t n = in_sieve_start + this->sieve_mem_ptr_->NumberCapacity();
 
 	//If there are to be several kernel launches we need to figure out
 	//where the subsequent blocks should start

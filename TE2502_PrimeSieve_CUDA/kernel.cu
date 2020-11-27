@@ -17,6 +17,7 @@
 #include "src/sieves/sieve_atkin_cpu.h"
 
 //GPGPU Sieves
+#include "src/sieves/sieve_eratosthenes_cuda.cuh"
 #include "src/sieves/sieve_sundaram_cuda.cuh"
 #include "src/sieves/sieve_sundaram_cuda_batches.cuh"
 #include "src/sieves/sieve_atkin_cuda.cuh"
@@ -51,26 +52,30 @@ int main() {
 
 	//size_t n = 1024*90 + 522;
 	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
-	size_t n = 1024*90;
+	size_t n = 22;
 
 	//SieveEratosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
+	SieveEratosthenesCUDA eratosthenesB(n);
+	std::cout << eratosthenesB.StringifyResults("ERATOSTHENES CUDA") << std::endl;
+	//std::cout << eratosthenesB.StringifyTrackerArr() << std::endl;
+
 	//SieveSundaramCPU sundaramA(n);
 	//std::cout << sundaramA.StringifyResults("SUNDARAM CPU") << std::endl;
 	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
 	
-	//SieveSundaramCUDA sundaramB(n);
-	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU") << std::endl;
+	SieveSundaramCUDA sundaramB(n);
+	std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramB.StringifyTrackerArr() << std::endl;
 
 	//SieveSundaramCUDABatches sundaramC(n);
 	//std::cout << sundaramC.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
 	//std::cout << sundaramC.StringifyTrackerArr() << std::endl;
 
-	//SieveAtkinCUDA atkinA(n);
-	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
+	SieveAtkinCUDA atkinA(n);
+	std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
 
@@ -87,9 +92,9 @@ int main() {
 	//std::cout << SieveAtkinCUDA(n-1).StringifyResults("CUDA");
 
 	//Allocation test
-	std::cout << SieveEratosthenesCPU(n).StringifyResults("FIRST") << std::endl;
-	std::cout << SieveSundaramCPU(n).StringifyResults("SECOND") << std::endl;
-	std::cout << SieveAtkinCPU(n).StringifyResults("THIRD") << std::endl;
+	//std::cout << SieveEratosthenesCPU(n).StringifyResults("FIRST") << std::endl;
+	//std::cout << SieveSundaramCPU(n).StringifyResults("SECOND") << std::endl;
+	//std::cout << SieveAtkinCPU(n).StringifyResults("THIRD") << std::endl;
 	//std::cout << SieveSundaramCPU(12023).StringifyResults("FOURTH") << std::endl;
 
 	//---
