@@ -3,6 +3,8 @@
 #include <cmath>
 #include <stdio.h>
 
+
+
 //#include <iostream>
 
 //Private------------------------------------------------------------------------------------------
@@ -17,7 +19,7 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 	//TEST
 	*/
 
-	//Return value struct
+	//Return-value struct
 	VerificationData ret_data;
 	std::string missed_primes = "";
 	std::string false_primes = "";
@@ -106,12 +108,111 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 }
 
 SieveBase::VerificationData SieveBase::VerifyByRabinMiller() {
-	//Return value struct
+	//Return-value struct
 	VerificationData ret_data;
-	std::string missed_primes = "";
 	std::string false_primes = "";
+	std::string missed_primes = "";
+	
 
-	//
+	//Random number generator
+	std::default_random_engine generator;
+
+	//Rabin-Miller accuracy factor
+	size_t k = 100;
+
+	//Go through all numbers in range
+	size_t num_of_misses = 0;
+	for (size_t i = this->start_; i < this->end_; i++) {
+		bool sieve_result = this->IsPrime(i);
+		bool rabin_miller_result = this->RabinMillerLoop(i, k, generator);
+
+		//When the results differ, log false primes / misses
+		if (sieve_result && !rabin_miller_result) {			//Sieve finding prime when RM doesn't -> false prime
+			num_of_misses++;
+			false_primes += std::to_string(i) + ", ";
+		}
+		else if (!sieve_result && rabin_miller_result) {	//Sieve not finding prime when RM does -> miss
+			num_of_misses++;
+			missed_primes += std::to_string(i) + ", ";
+		}
+	}
+
+	//Calculate how many percent of the numbers where identified correctly
+	size_t nums_in_memory = this->mem_class_ptr_->NumberCapacity();
+	float percentage_correct = (1.0f - ((float)num_of_misses / (float)nums_in_memory)) * 100;
+
+	//Add data to return struct
+	ret_data.accuracy_str = std::to_string(percentage_correct);
+	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);										//Remove some 0:s
+	//if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
+	if (!false_primes.empty() || !missed_primes.empty()) {
+		ret_data.miss_str = "False Primes: <" + false_primes + ">\t";
+		ret_data.miss_str += "Missed Primes: <" + missed_primes + ">";
+	}
+
+	//Return
+	return ret_data;
+}
+
+bool SieveBase::RabinMillerLoop(size_t in_n, size_t in_k, std::default_random_engine& in_gen_ref) {
+
+	if (in_n < 2) { return false; }
+	if (in_n == 2) { return true; }
+	if (in_n % 2 == 0) { return false; }
+
+	if (in_n == 3) { return true; }	//NTS: This line is here to ensure a <= b 
+									//in std::uniform_int_distribution<int>(a,b)
+									//in the RabinMillerTest() function
+
+	//Find r so that n = 2^d * r + 1 for some r >=1
+	size_t d = (in_n-1);
+	while (d % 2 == 0) {
+		d /= 2;
+	}
+
+	for (size_t k = 0; k < in_k; k++) {
+		if (!RabinMillerTest(in_n, d, in_gen_ref)) { return false; }
+	}
+
+	return true;
+}
+
+bool SieveBase::RabinMillerTest(size_t in_n, size_t in_d, std::default_random_engine& in_gen_ref) {
+	
+	//Generate a random number 'a' in range [2, n-2]
+	std::uniform_int_distribution<int> distribution(2, (in_n-2));
+	size_t a = distribution(in_gen_ref);
+
+	//Compute a^d % n
+	size_t x = ModularExponentiation(a, in_d, in_n) % in_n;
+
+	//Determine if prime or not
+	//A
+	if (x == 1 || x == (in_n - 1)) { return true; }
+	//B
+	while (in_d != (in_n-1)) {
+		x = (x*x) % in_n;
+		in_d *= 2;
+
+		if (x == 1) { return false; }
+		if (x == (in_n - 1)) { return false; }
+	}
+	//C
+	return false;
+}
+
+size_t SieveBase::ModularExponentiation(size_t in_x, size_t in_y, size_t in_p) {
+	size_t r = 1;
+	in_x = in_x % in_p;
+
+	while (in_y > 0) {
+		if (in_y & 1) { r = (r*in_x) % in_p; }
+
+		in_y = in_y >> 1;//y/=2;
+		in_x = (in_x*in_x) % in_p;
+	}
+
+	return r;
 }
 
 //Public-------------------------------------------------------------------------------------------
@@ -182,7 +283,8 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	}
 
 	//Calculate accuracy and format string
-	VerificationData v = this->VerifyByFile();
+	//VerificationData v = this->VerifyByFile();
+	VerificationData v = this->VerifyByRabinMiller();
 
 	//Fill fields:
 	ret_str += "Range:\t\t\t[" + std::to_string(this->start_) + ", " + std::to_string(this->end_) + "]\n";
