@@ -97,6 +97,7 @@
     <ClCompile Include="src\sieves\sieve_base.cpp" />
     <ClCompile Include="src\sieves\sieve_eratosthenes_cpu.cpp" />
     <ClCompile Include="src\sieves\sieve_sundaram_cpu.cpp" />
+    <ClCompile Include="src\support\rabin_miller_tester.cpp" />
     <ClCompile Include="src\support\stat_handler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +115,7 @@
     <ClInclude Include="src\sieves\sieve_sundaram_cuda.cuh" />
     <ClInclude Include="src\sieves\sieve_sundaram_cuda_batches.cuh" />
     <ClInclude Include="src\support\cuda_error_output.h" />
+    <ClInclude Include="src\support\rabin_miller_tester.h" />
     <ClInclude Include="src\support\stat_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

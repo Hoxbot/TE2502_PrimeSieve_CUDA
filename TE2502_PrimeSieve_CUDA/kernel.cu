@@ -52,14 +52,14 @@ int main() {
 
 	//size_t n = 1024*90 + 522;
 	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
-	size_t n = 22;
+	size_t n = 65535*2;
 
 	//SieveEratosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
 	SieveEratosthenesCUDA eratosthenesB(n);
-	std::cout << eratosthenesB.StringifyResults("ERATOSTHENES CUDA") << std::endl;
+	std::cout << eratosthenesB.StringifyResults("ERATOSTHENES GPGPU") << std::endl;
 	//std::cout << eratosthenesB.StringifyTrackerArr() << std::endl;
 
 	//SieveSundaramCPU sundaramA(n);

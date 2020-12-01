@@ -5,7 +5,7 @@
 //CUDA---------------------------------------------------------------------------------------------
 __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
 	//Get the thread's index
-	unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
+	size_t x = blockIdx.x*blockDim.x + threadIdx.x;
 
 	//The first cuda thread has id 0
 	//-> It computes number x

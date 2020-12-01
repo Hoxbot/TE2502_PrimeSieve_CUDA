@@ -48,6 +48,9 @@ bool SieveSundaramCPU::IsPrime(size_t in_num) {
 	//Everything outside scope is false
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
 
+	//Anything smaller than 2 is not a prime
+	if (in_num < 2) { return false; }
+
 	//Sundaram's sieve does not store even numbers
 	//> 2 special case
 	//> All other even numbers false

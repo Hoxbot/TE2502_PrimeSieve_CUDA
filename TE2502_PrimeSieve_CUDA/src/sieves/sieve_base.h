@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <random>
 
 #include "prime_memory/prime_memory_bool.h"
 #include "prime_memory/prime_memory_bit.h"
@@ -17,11 +16,7 @@ private:
 	};
 
 	VerificationData VerifyByFile();
-	
 	VerificationData VerifyByRabinMiller();
-	bool RabinMillerLoop(size_t in_n, size_t in_k, std::default_random_engine& in_gen_ref);
-	bool RabinMillerTest(size_t in_n, size_t in_d, std::default_random_engine& in_gen_ref);
-	size_t ModularExponentiation(size_t in_x, size_t in_y, size_t in_p);
 
 protected:
 	size_t start_ = 0;

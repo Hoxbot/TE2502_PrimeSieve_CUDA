@@ -5,7 +5,7 @@
 //CUDA---------------------------------------------------------------------------------------------
 __global__ void SundaramKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
 	//Get the thread's index
-	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+	size_t i = blockIdx.x*blockDim.x + threadIdx.x;
 
 	//The first cuda thread has id 0
 	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
@@ -90,6 +90,9 @@ bool SieveSundaramCUDA::IsPrime(size_t in_num) {
 	//Everything outside scope is false
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
 	
+	//Anything smaller than 2 is not a prime
+	if (in_num < 2) { return false; }
+
 	//Sundaram's sieve does not store even numbers
 	//> 2 special case
 	//> All other even numbers false

@@ -3,7 +3,7 @@
 //CUDA---------------------------------------------------------------------------------------------
 __global__ void EratosthenesKernel(size_t in_start, size_t in_n, bool* in_device_memory) {
 	//Get the thread's index
-	unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+	size_t i = blockIdx.x*blockDim.x + threadIdx.x;
 
 	//The first cuda thread has id 0
 	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
