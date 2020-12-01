@@ -44,7 +44,7 @@ public:
 
 	std::vector<size_t> PrimeVector();
 	
-
+	void SaveToFile(std::string in_folder_path, std::string in_file_name);
 	
 };
 

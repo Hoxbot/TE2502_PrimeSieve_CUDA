@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdio.h>
 
-//#include <iostream>
+#include <iostream>
 
 #include "../support/rabin_miller_tester.h"
 
@@ -247,4 +247,34 @@ std::vector<size_t> SieveBase::PrimeVector() {
 	}
 
 	return ret_vec;
+}
+
+void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name) {
+	//Open file
+	FILE* file_ptr = nullptr;
+	errno_t error;
+	error = fopen_s(&file_ptr, (in_folder_path + in_file_name).c_str(), "a");
+	if (file_ptr == nullptr) { 
+		std::cerr << ("Error: Could not open file '" + in_folder_path + in_file_name + "'\n");
+		return;
+	}
+
+
+	//Calculate accuracy and format string
+	VerificationData v = this->VerifyByRabinMiller();
+
+	//Build line to be appended into file
+	std::string str = "";
+	std::string separator = "\t";
+	str = std::to_string(this->end_) + separator;
+	str += v.accuracy_str + separator;
+	str += this->timer_.GetTotalSeparatorString(separator);
+	str += this->timer_.GetLapsSeparatorString(separator);
+	str += "\n"; //End entry
+
+	//Write to file
+	fwrite(str.c_str(), sizeof(char), str.size(), file_ptr);
+
+	//Close file
+	fclose(file_ptr);
 }

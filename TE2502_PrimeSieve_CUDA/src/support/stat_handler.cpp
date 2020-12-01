@@ -64,7 +64,7 @@ void StatHandler::WriteTimesToFile(std::string in_header, std::string in_path) {
 	//Open file
 	FILE* file_ptr = nullptr;
 	errno_t error;
-	error = fopen_s(&file_ptr, in_path.c_str(), "wb+"); //Plus overwrites file contents
+	error = fopen_s(&file_ptr, in_path.c_str(), "wb+"); //Plus is for both i/o
 	if (file_ptr == nullptr) { return; }
 
 	//Write header
@@ -92,4 +92,22 @@ void StatHandler::WriteTimesToFile(std::string in_header, std::string in_path) {
 
 	//Once done, close file and delete buffer
 	fclose(file_ptr);
+}
+
+std::string StatHandler::GetLapsSeparatorString(std::string in_separator) {
+	std::string ret_str = "";
+
+	for (unsigned int i = 1; i < this->time_points.size(); i++) {
+		ret_str += std::to_string(this->ConvertToMicroSeconds(i-1, i)) + in_separator;
+	}
+
+	return ret_str;
+}
+
+std::string StatHandler::GetTotalSeparatorString(std::string in_separator) {
+	std::string ret_str = "";
+
+	ret_str = std::to_string(this->ConvertToMicroSeconds(0, (this->time_points.size()-1))) + in_separator;
+
+	return ret_str;
 }

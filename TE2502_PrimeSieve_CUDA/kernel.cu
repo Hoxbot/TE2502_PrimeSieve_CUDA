@@ -52,14 +52,14 @@ int main() {
 
 	//size_t n = 1024*90 + 522;
 	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
-	size_t n = 65535*2;
+	size_t n = 65535;
 
 	//SieveEratosthenesCPU eratosthenesA(n);
 	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
 	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
 
-	SieveEratosthenesCUDA eratosthenesB(n);
-	std::cout << eratosthenesB.StringifyResults("ERATOSTHENES GPGPU") << std::endl;
+	//SieveEratosthenesCUDA eratosthenesB(n);
+	//std::cout << eratosthenesB.StringifyResults("ERATOSTHENES GPGPU") << std::endl;
 	//std::cout << eratosthenesB.StringifyTrackerArr() << std::endl;
 
 	//SieveSundaramCPU sundaramA(n);
@@ -69,13 +69,14 @@ int main() {
 	SieveSundaramCUDA sundaramB(n);
 	std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU") << std::endl;
 	//std::cout << sundaramB.StringifyTrackerArr() << std::endl;
+	sundaramB.SaveToFile("sieve results/", "test.txt");
 
 	//SieveSundaramCUDABatches sundaramC(n);
 	//std::cout << sundaramC.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
 	//std::cout << sundaramC.StringifyTrackerArr() << std::endl;
 
-	SieveAtkinCUDA atkinA(n);
-	std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
+	//SieveAtkinCUDA atkinA(n);
+	//std::cout << atkinA.StringifyResults("ATKIN GPGPU") << std::endl;
 	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
 
 

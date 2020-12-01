@@ -25,6 +25,9 @@ public:
 	std::string StringifyTotalTime();
 
 	void WriteTimesToFile(std::string in_header, std::string in_path);
+
+	std::string GetLapsSeparatorString(std::string in_separator);
+	std::string GetTotalSeparatorString(std::string in_separator);
 };
 
 #endif // !STAT_HANDLER_H
