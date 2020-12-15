@@ -17,6 +17,7 @@ private:
 
 	VerificationData VerifyByFile();
 	VerificationData VerifyByRabinMiller();
+	VerificationData VerifyByEratosthenes();
 
 protected:
 	size_t start_ = 0;
