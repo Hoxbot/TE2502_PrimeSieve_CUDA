@@ -79,7 +79,32 @@ SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n)// {
 	this->timer_.SaveTime();
 }
 
+SieveSundaramCUDA::SieveSundaramCUDA(size_t in_n, PrimeMemoryFragsafe * in_ptr)// {
+	: SieveBase(1, in_n), SieveCUDA() {
+
+	//Determine memory capacity needed
+	//NTS: +1 since we round up
+	size_t mem_size = ((in_n - 2) / 2) + ((in_n - 2) % 2);
+
+	//Set fragsafe memory
+	in_ptr->AllocateSubMemory(mem_size);
+	this->mem_class_ptr_ = in_ptr;
+	this->LinkMemory(this->mem_class_ptr_);
+
+	//Sundaram starts all as primes
+	this->mem_class_ptr_->SetAllPrime();
+
+	this->timer_.SaveTime();
+
+	this->DoSieve();
+
+	this->timer_.SaveTime();
+}
+
 SieveSundaramCUDA::~SieveSundaramCUDA() {
+	//Do not delete memory if its a fragsafe pointer
+	if (dynamic_cast<PrimeMemoryFragsafe*>(this->mem_class_ptr_) != nullptr) { return; }
+
 	if (this->mem_class_ptr_ != nullptr) {
 		delete this->mem_class_ptr_;
 		this->mem_class_ptr_ = nullptr;

@@ -28,6 +28,9 @@
 #include "src/sieves/sieve_sundaram_cuda_batches.cuh"
 #include "src/sieves/sieve_atkin_cuda.cuh"
 
+//Memory
+#include "src/sieves/prime_memory/prime_memory_fragsafe.h"
+
 //Misc
 inline void WaitForEnter() {
 	std::string str;
@@ -99,8 +102,14 @@ int main() {
 	size_t n_s = 100000000;
 	//SieveType t = ATKIN_GPGPU;
 
-	std::cout << SieveEratosthenesCPU(n).StringifyResults("Eratosthenes CPU") << "\n";
-	std::cout << SieveEratosthenesCUDA(n).StringifyResults("Eratosthenes CUDA") << "\n";
+	//test
+	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
+
+	std::cout << SieveEratosthenesCPU(n, safe_mem_ptr).StringifyResults("Eratosthenes CPU") << "\n";
+	std::cout << SieveEratosthenesCUDA(n, safe_mem_ptr).StringifyResults("Eratosthenes CUDA") << "\n";
+
+	delete safe_mem_ptr;
+	//test
 
 	/* GENERAL RUN */
 	/*

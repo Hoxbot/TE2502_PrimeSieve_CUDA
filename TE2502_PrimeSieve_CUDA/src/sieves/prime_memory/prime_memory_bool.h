@@ -4,17 +4,17 @@
 #include "prime_memory.h"
 
 class PrimeMemoryBool : public PrimeMemory {
-private:
-	size_t arr_size_ = 0;
-	bool* tracker_arr_ = nullptr;
+protected:
+	size_t mem_size_ = 0;
+	bool* mem_arr_ = nullptr;
 
 public:
 	PrimeMemoryBool(size_t in_size);
 	~PrimeMemoryBool();
 
 	void* getMemPtr();
-	size_t BytesAllocated();
-	size_t NumberCapacity();
+	virtual size_t BytesAllocated();
+	virtual size_t NumberCapacity();
 
 	bool CheckIndex(size_t in_i);
 

@@ -73,7 +73,36 @@ SieveAtkinCPU::SieveAtkinCPU(size_t in_n)// {
 
 }
 
+SieveAtkinCPU::SieveAtkinCPU(size_t in_n, PrimeMemoryFragsafe * in_ptr)// {
+	: SieveBase(1, in_n) {
+
+	//NTS: Atkins excluding limit? ( [1, n[ )
+
+	//Determine memory capacity needed
+	size_t mem_size = in_n;
+
+	//Set fragsafe memory
+	in_ptr->AllocateSubMemory(mem_size);
+	this->mem_class_ptr_ = in_ptr;
+
+	//Atkin starts all as non-primes
+	this->mem_class_ptr_->SetAllNonPrime();
+
+	this->timer_.SaveTime();
+
+	//Set 2 and 3 manually as sieving process starts at 5
+	if (in_n >= 2) { this->mem_class_ptr_->SetPrime(1); }
+	if (in_n >= 3) { this->mem_class_ptr_->SetPrime(2); }
+
+	this->DoSieve();
+
+	this->timer_.SaveTime();
+}
+
 SieveAtkinCPU::~SieveAtkinCPU() {
+	//Do not delete memory if its a fragsafe pointer
+	if (dynamic_cast<PrimeMemoryFragsafe*>(this->mem_class_ptr_) != nullptr) { return; }
+
 	if (this->mem_class_ptr_ != nullptr) {
 		delete this->mem_class_ptr_;
 		this->mem_class_ptr_ = nullptr;

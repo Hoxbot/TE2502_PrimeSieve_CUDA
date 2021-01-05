@@ -7,6 +7,8 @@
 #include "sieve_base.h"
 #include "sieve_cuda.cuh"
 
+#include "prime_memory/prime_memory_fragsafe.h"
+
 //CUDA Stuff
 __global__ void AtkinKernel(size_t in_start, size_t in_n, bool* in_device_memory);
 
@@ -20,6 +22,7 @@ private:
 	size_t IndexToNumber(size_t in_i);
 public:
 	SieveAtkinCUDA(size_t in_n);
+	SieveAtkinCUDA(size_t in_n, PrimeMemoryFragsafe* in_ptr);
 	~SieveAtkinCUDA();
 
 	bool IsPrime(size_t in_num);

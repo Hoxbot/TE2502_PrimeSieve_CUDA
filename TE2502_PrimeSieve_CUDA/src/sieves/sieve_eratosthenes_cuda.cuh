@@ -7,6 +7,8 @@
 #include "sieve_base.h"
 #include "sieve_cuda.cuh"
 
+#include "prime_memory/prime_memory_fragsafe.h"
+
 //CUDA Stuff
 __global__ void EratosthenesKernel(size_t in_start, size_t in_n, bool* in_device_memory);
 
@@ -33,6 +35,7 @@ private:
 	size_t IndexToNumber(size_t in_i);
 public:
 	SieveEratosthenesCUDA(size_t in_n);
+	SieveEratosthenesCUDA(size_t in_n, PrimeMemoryFragsafe* in_ptr);
 	~SieveEratosthenesCUDA();
 
 	bool IsPrime(size_t in_num);
