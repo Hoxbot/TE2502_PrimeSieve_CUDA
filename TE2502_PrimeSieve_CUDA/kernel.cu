@@ -98,9 +98,9 @@ int main() {
 	//         3221225472
 	size_t n = 1000000000;
 	//size_t n = 1000;
-	//size_t n_s = 100;
-	size_t n_s = 100000000;
-	unsigned int sleep_sec = 5;
+	size_t n_s = 100;
+	//size_t n_s = 100000000;
+	unsigned int sleep_sec = 1;
 
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
 	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
