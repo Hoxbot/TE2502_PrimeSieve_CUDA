@@ -100,18 +100,13 @@ int main() {
 	//size_t n = 1000;
 	//size_t n_s = 100;
 	size_t n_s = 100000000;
-	//SieveType t = ATKIN_GPGPU;
+	unsigned int sleep_sec = 5;
 
-	//test
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
 	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
 
-	SieveEratosthenesCPU(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
-	SieveEratosthenesCUDA(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
-
-	delete safe_mem_ptr;
-	delete verification_mem_ptr;
-	//test
+	//SieveEratosthenesCPU(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
+	//SieveEratosthenesCUDA(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
 
 	/* GENERAL RUN */
 	/*
@@ -168,12 +163,11 @@ int main() {
 	*/
 
 	/*GENERAL RUN 2 */
-	/*
 	//Run a initializing GPGPU sieve
 	std::cout << ">Running init sieve\n";
 	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
 	std::cout << ">Going to sleep.\n";
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+	std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
 
 	//Select Sieve
 	for (SieveType t = ERATOSTHENES_CPU; t < ENUM_END; t = (SieveType)((unsigned int)t + 1)) {
@@ -193,41 +187,40 @@ int main() {
 
 				switch (t) {
 				case ERATOSTHENES_CPU:
-					sieve_ptr = new SieveEratosthenesCPU(n_i);
+					sieve_ptr = new SieveEratosthenesCPU(n_i, safe_mem_ptr);
 					break;
 				case ERATOSTHENES_GPGPU:
-					sieve_ptr = new SieveEratosthenesCUDA(n_i);
+					sieve_ptr = new SieveEratosthenesCUDA(n_i, safe_mem_ptr);
 					break;
 				case SUNDARAM_CPU:
-					sieve_ptr = new SieveSundaramCPU(n_i);
+					sieve_ptr = new SieveSundaramCPU(n_i, safe_mem_ptr);
 					break;
 				case SUNDARAM_GPGPU:
-					sieve_ptr = new SieveSundaramCUDA(n_i);
+					sieve_ptr = new SieveSundaramCUDA(n_i, safe_mem_ptr);
 					break;
 				case ATKIN_CPU:
-					sieve_ptr = new SieveAtkinCPU(n_i);
+					sieve_ptr = new SieveAtkinCPU(n_i, safe_mem_ptr);
 					break;
 				case ATKIN_GPGPU:
-					sieve_ptr = new SieveAtkinCUDA(n_i);
+					sieve_ptr = new SieveAtkinCUDA(n_i, safe_mem_ptr);
 					break;
 				default:
 					break;
 				}
 
 				std::cout << ">Sieve done. Verifying and saving to file.\n";
-				sieve_ptr->SaveToFile("sieve results/", m[t] + "_5.tsv");
+				sieve_ptr->SaveToFile("sieve results/", m[t] + "_5.tsv", verification_mem_ptr);
 				//std::cout << sieve_ptr->StringifyResults("Results") << std::endl;
 
 				delete sieve_ptr;
 
-				//Sleep for 5 sec to ensure program has time to deallocate memory properly
+				//Sleep for x sec to ensure program has time to deallocate memory properly
 				std::cout << ">Going to sleep.\n";
-				std::this_thread::sleep_for(std::chrono::seconds(1));
+				std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
 				
 			}	
 		}
 	}
-	*/
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
@@ -237,6 +230,10 @@ int main() {
         fprintf(stderr, "cudaDeviceReset failed!");
         return 1;
     }
+
+	//Clear fragsafe memories
+	delete safe_mem_ptr;
+	delete verification_mem_ptr;
 
 	std::cout << "<Program End>" << std::endl;
 
