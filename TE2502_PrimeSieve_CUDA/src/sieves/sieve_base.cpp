@@ -214,6 +214,70 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes() {
 	return ret_data;
 }
 
+SieveBase::VerificationData SieveBase::VerifyByEratosthenes(PrimeMemoryFragsafe* in_ptr) {
+	//Same as above but doesn't allocate a PrimeMemoryBool to verify against
+	
+	//Return-value struct
+	VerificationData ret_data;
+	std::string false_primes = "";
+	std::string missed_primes = "";
+
+	//Create a memory to hold the memory of the checker sieve
+	in_ptr->AllocateSubMemory(this->end_ + 1); //+1 : inclusive	//NTS: *Shouldn't* be deleted! Is a fragsafe memory
+	PrimeMemoryBool* tester_mem = in_ptr;
+	tester_mem->SetAllPrime();
+	tester_mem->SetNonPrime(0);
+	tester_mem->SetNonPrime(1);
+
+	//Sieve via Eratosthenes
+	unsigned int root_of_end = std::sqrt(this->end_) + 1;
+	for (size_t i = 2; i < root_of_end; i++) {
+		if (tester_mem->CheckIndex(i)) {
+			for (size_t j = i * i; j <= this->end_; j = j + i) {
+				tester_mem->SetNonPrime(j);
+			}
+		}
+	}
+
+	//Go through all numbers in range
+	size_t num_of_misses = 0;
+	for (size_t i = this->start_; i < this->end_; i++) {
+		bool sieve_result = this->IsPrime(i);
+		bool tester_result = tester_mem->CheckIndex(i);
+
+		//When the results differ, log false primes / misses
+		if (sieve_result && !tester_result) {			//Sieve finding prime when RM doesn't -> false prime
+			num_of_misses++;
+			false_primes += std::to_string(i) + ", ";
+
+			ret_data.false_primes.push_back(i);
+		}
+		else if (!sieve_result && tester_result) {	//Sieve not finding prime when RM does -> miss
+			num_of_misses++;
+			missed_primes += std::to_string(i) + ", ";
+
+			ret_data.false_composites.push_back(i);
+		}
+	}
+
+	//Calculate how many percent of the numbers where identified correctly
+	size_t nums_in_memory = this->mem_class_ptr_->NumberCapacity();
+	float percentage_correct = (1.0f - ((float)num_of_misses / (float)nums_in_memory)) * 100;
+
+	//Add data to return struct
+	ret_data.accuracy_str = std::to_string(percentage_correct);
+	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);										//Remove some 0:s
+	//if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
+	if (!false_primes.empty() || !missed_primes.empty()) {
+		ret_data.miss_str = "False Primes: <" + false_primes + ">\t";
+		ret_data.miss_str += "Missed Primes: <" + missed_primes + ">";
+	}
+
+	//Return
+	return ret_data;
+
+}
+
 size_t SieveBase::CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref) {
 	size_t ret_val = 0;
 	for (size_t i = 0; i < in_vec_ref.size(); i++) {
@@ -353,6 +417,38 @@ void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name)
 	//Close file
 	fclose(file_ptr);
 }
+
+void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name, PrimeMemoryFragsafe* in_ptr) {
+	//Open file
+	FILE* file_ptr = nullptr;
+	errno_t error;
+	error = fopen_s(&file_ptr, (in_folder_path + in_file_name).c_str(), "a");
+	if (file_ptr == nullptr) {
+		std::cerr << ("Error: Could not open file '" + in_folder_path + in_file_name + "'\n");
+		return;
+	}
+
+
+	//Calculate accuracy and format string
+	//VerificationData v = this->VerifyByRabinMiller();
+	VerificationData v = this->VerifyByEratosthenes(in_ptr);
+
+	//Build line to be appended into file
+	std::string str = "";
+	std::string separator = "\t";
+	str = std::to_string(this->end_) + separator;
+	str += v.accuracy_str + separator;
+	str += this->timer_.GetTotalSeparatorString(separator);
+	str += this->timer_.GetLapsSeparatorString(separator);
+	str += "\n"; //End entry
+
+	//Write to file
+	fwrite(str.c_str(), sizeof(char), str.size(), file_ptr);
+
+	//Close file
+	fclose(file_ptr);
+}
+
 
 void SieveBase::SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name) {
 	//Open file

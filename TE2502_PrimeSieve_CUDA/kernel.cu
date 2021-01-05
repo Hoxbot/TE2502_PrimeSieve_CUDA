@@ -104,11 +104,13 @@ int main() {
 
 	//test
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
+	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
 
-	std::cout << SieveEratosthenesCPU(n, safe_mem_ptr).StringifyResults("Eratosthenes CPU") << "\n";
-	std::cout << SieveEratosthenesCUDA(n, safe_mem_ptr).StringifyResults("Eratosthenes CUDA") << "\n";
+	SieveEratosthenesCPU(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
+	SieveEratosthenesCUDA(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
 
 	delete safe_mem_ptr;
+	delete verification_mem_ptr;
 	//test
 
 	/* GENERAL RUN */

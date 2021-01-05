@@ -8,6 +8,8 @@
 #include "prime_memory/prime_memory_bit.h"
 #include "../support/stat_handler.h"
 
+#include "prime_memory/prime_memory_fragsafe.h"
+
 class SieveBase {
 private:
 	struct VerificationData {
@@ -21,6 +23,7 @@ private:
 	VerificationData VerifyByFile();
 	VerificationData VerifyByRabinMiller();
 	VerificationData VerifyByEratosthenes();
+	VerificationData VerifyByEratosthenes(PrimeMemoryFragsafe* in_ptr);
 
 	size_t CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref);
 
@@ -51,6 +54,7 @@ public:
 	std::vector<size_t> PrimeVector();
 	
 	void SaveToFile(std::string in_folder_path, std::string in_file_name);
+	void SaveToFile(std::string in_folder_path, std::string in_file_name, PrimeMemoryFragsafe* in_ptr);
 
 	void SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name);
 	
