@@ -9,6 +9,9 @@
 #include <map>
 #include <string>
 
+#include <thread>         // std::this_thread::sleep_for
+#include <chrono>         // std::chrono::seconds
+
 //For memory leaks
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -39,6 +42,7 @@ enum SieveType {
 	SUNDARAM_GPGPU,
 	ATKIN_CPU,
 	ATKIN_GPGPU,
+	ENUM_END,
 };
 
 int main() {
@@ -80,53 +84,139 @@ int main() {
 	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
 	//size_t n = 65535;
 
-	//SieveEratosthenesCPU eratosthenesA(n);
-	//std::cout << eratosthenesA.StringifyResults("ERATOSTHENES CPU") << std::endl;
-	//std::cout << eratosthenesA.StringifyTrackerArr() << std::endl;
-
-	//SieveEratosthenesCUDA eratosthenesB(n);
-	//std::cout << eratosthenesB.StringifyResults("ERATOSTHENES GPGPU") << std::endl;
-	//std::cout << eratosthenesB.StringifyTrackerArr() << std::endl;
-
-	//SieveSundaramCPU sundaramA(n);
-	//std::cout << sundaramA.StringifyResults("SUNDARAM CPU") << std::endl;
-	//std::cout << sundaramA.StringifyTrackerArr() << std::endl;
-	
-	//SieveSundaramCUDA sundaramB(n);
-	//std::cout << sundaramB.StringifyResults("SUNDARAM GPGPU") << std::endl;
-	//std::cout << sundaramB.StringifyTrackerArr() << std::endl;
-	//sundaramB.SaveToFile("sieve results/", "test.txt");
-
-	//SieveSundaramCUDABatches sundaramC(n);
-	//std::cout << sundaramC.StringifyResults("SUNDARAM GPGPU (BATCHES") << std::endl;
-	//std::cout << sundaramC.StringifyTrackerArr() << std::endl;
-
-	//SieveAtkinCPU atkinA(n);
-	//std::cout << atkinA.StringifyResults("ATKIN CPU") << std::endl;
-
-	//SieveAtkinCUDA atkinB(n);
-	//std::cout << atkinB.StringifyResults("ATKIN GPGPU") << std::endl;
-	//std::cout << atkinA.StringifyTrackerArr() << std::endl;
-
 	std::map<SieveType, std::string> m;
 	m[ERATOSTHENES_CPU]		= "ERATOSTHENES_CPU";
-	m[ERATOSTHENES_GPGPU]	= "ERATOSTHENES_CPU";
+	m[ERATOSTHENES_GPGPU]	= "ERATOSTHENES_GPGPU";
 	m[SUNDARAM_CPU]			= "SUNDARAM_CPU";
 	m[SUNDARAM_GPGPU]		= "SUNDARAM_GPGPU";
 	m[ATKIN_CPU]			= "ATKIN_CPU";
 	m[ATKIN_GPGPU]			= "ATKIN_GPGPU";
 
-	size_t n = 65535;
-	SieveType t = ERATOSTHENES_CPU;
+	//         3221225472
+	size_t n = 1000000000;
+	//size_t n = 1000;
+	//size_t n_s = 100;
+	size_t n_s = 100000000;
+	//SieveType t = ATKIN_GPGPU;
 
-	for (size_t n_i = 100; n_i <= n; n_i = n_i*100) {
-		std::cout << ">Starting sieve " << m[t] << " (n=" << n_i << ")\n";
-		SieveEratosthenesCPU theSieve(n_i);
-		std::cout << ">Sieve done. Verifying and saving to file.\n"; 
-		theSieve.SaveToFile("sieve results/", m[t] + ".txt");
-		//std::cout << theSieve.StringifyResults("Results") << std::endl;
+	std::cout << SieveEratosthenesCPU(n).StringifyResults("Eratosthenes CPU") << "\n";
+	std::cout << SieveEratosthenesCUDA(n).StringifyResults("Eratosthenes CUDA") << "\n";
+
+	/* GENERAL RUN */
+	/*
+	for (SieveType t = ERATOSTHENES_CPU; t < ENUM_END; t = (SieveType)((unsigned int)t + 1)) {
+
+		size_t inc = n_s;
+
+		for (size_t n_i = n_s; n_i <= n; n_i = n_i + inc) {
+
+			if (n_i >= 10 * inc) { inc *= 10; }	//Scales it to be 10 steps per iteration
+
+			SieveBase* sieve_ptr;
+
+			std::cout << ">Starting sieve " << m[t] << " (n=" << n_i << ")\n";
+
+			switch (t) {
+			case ERATOSTHENES_CPU:
+				sieve_ptr = new SieveEratosthenesCPU(n_i);
+				break;
+			case ERATOSTHENES_GPGPU:
+				sieve_ptr = new SieveEratosthenesCUDA(n_i);
+				break;
+			case SUNDARAM_CPU:
+				sieve_ptr = new SieveSundaramCPU(n_i);
+				break;
+			case SUNDARAM_GPGPU:
+				sieve_ptr = new SieveSundaramCUDA(n_i);
+				break;
+			case ATKIN_CPU:
+				sieve_ptr = new SieveAtkinCPU(n_i);
+				break;
+			case ATKIN_GPGPU:
+				sieve_ptr = new SieveAtkinCUDA(n_i);
+				break;
+			default:
+				break;
+			}
+
+			std::cout << ">Sieve done. Verifying and saving to file.\n";
+			sieve_ptr->SaveToFile("sieve results/", m[t] + "_4.tsv");
+			//std::cout << sieve_ptr->StringifyResults("Results") << std::endl;
+
+			delete sieve_ptr;
+		}
 	}
+	*/
 	
+	/* COUNTING NUMBER OF PRIMES */
+	/*
+	SieveSundaramCUDA(n).SaveRegionalDataToFile("sieve results/", "region_data.tsv", "SoS-CUDA:");
+	for (size_t i = 0; i < 10; i++) {
+		SieveAtkinCUDA(n).SaveRegionalDataToFile("sieve results/", "region_data.tsv", "SoA-CUDA" + std::to_string(i) + ":");
+	}
+	*/
+
+	/*GENERAL RUN 2 */
+	/*
+	//Run a initializing GPGPU sieve
+	std::cout << ">Running init sieve\n";
+	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
+	std::cout << ">Going to sleep.\n";
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
+	//Select Sieve
+	for (SieveType t = ERATOSTHENES_CPU; t < ENUM_END; t = (SieveType)((unsigned int)t + 1)) {
+
+		size_t inc = n_s;
+		
+		//Select Sieve Limit
+		for (size_t n_i = n_s; n_i <= n; n_i = n_i + inc) {
+
+			if (n_i >= 10 * inc) { inc *= 10; }	//Scales it to be 10 steps per iteration
+
+			//Sieve 10 times on selected limit with selected sieve
+			for (size_t i = 0; i < 10; i++) {
+				SieveBase* sieve_ptr;
+
+				std::cout << ">Starting sieve " << m[t] << " (n=" << n_i << ")\n";
+
+				switch (t) {
+				case ERATOSTHENES_CPU:
+					sieve_ptr = new SieveEratosthenesCPU(n_i);
+					break;
+				case ERATOSTHENES_GPGPU:
+					sieve_ptr = new SieveEratosthenesCUDA(n_i);
+					break;
+				case SUNDARAM_CPU:
+					sieve_ptr = new SieveSundaramCPU(n_i);
+					break;
+				case SUNDARAM_GPGPU:
+					sieve_ptr = new SieveSundaramCUDA(n_i);
+					break;
+				case ATKIN_CPU:
+					sieve_ptr = new SieveAtkinCPU(n_i);
+					break;
+				case ATKIN_GPGPU:
+					sieve_ptr = new SieveAtkinCUDA(n_i);
+					break;
+				default:
+					break;
+				}
+
+				std::cout << ">Sieve done. Verifying and saving to file.\n";
+				sieve_ptr->SaveToFile("sieve results/", m[t] + "_5.tsv");
+				//std::cout << sieve_ptr->StringifyResults("Results") << std::endl;
+
+				delete sieve_ptr;
+
+				//Sleep for 5 sec to ensure program has time to deallocate memory properly
+				std::cout << ">Going to sleep.\n";
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				
+			}	
+		}
+	}
+	*/
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

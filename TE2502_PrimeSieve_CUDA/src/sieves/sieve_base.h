@@ -13,11 +13,16 @@ private:
 	struct VerificationData {
 		std::string accuracy_str = "";
 		std::string miss_str = "";
+
+		std::vector<size_t> false_composites;
+		std::vector<size_t> false_primes;
 	};
 
 	VerificationData VerifyByFile();
 	VerificationData VerifyByRabinMiller();
 	VerificationData VerifyByEratosthenes();
+
+	size_t CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref);
 
 protected:
 	size_t start_ = 0;
@@ -46,6 +51,8 @@ public:
 	std::vector<size_t> PrimeVector();
 	
 	void SaveToFile(std::string in_folder_path, std::string in_file_name);
+
+	void SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name);
 	
 };
 

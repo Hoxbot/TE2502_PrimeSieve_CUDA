@@ -6,7 +6,7 @@ __global__ void EratosthenesKernel(size_t in_start, size_t in_n, bool* in_device
 	size_t i = blockIdx.x*blockDim.x + threadIdx.x;
 
 	//The first cuda thread has id 0
-	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
+	//We offset by in_start
 	i += in_start;
 
 	//NTS: Calculates for every i, even those that might already have been identified as composite

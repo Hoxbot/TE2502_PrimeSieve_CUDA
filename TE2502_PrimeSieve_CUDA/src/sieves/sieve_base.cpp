@@ -77,11 +77,15 @@ SieveBase::VerificationData SieveBase::VerifyByFile() {
 		if ((i != prime_from_file) && this->IsPrime(i)) { //NTS: IsPrime() is pure virtual
 			num_of_misses++;
 			false_primes += std::to_string(i) + ", ";
+
+			ret_data.false_primes.push_back(i);
 		}
 		else if (i == prime_from_file) {
 			if (!this->IsPrime(i)) { 
 				num_of_misses++;
 				missed_primes += std::to_string(i) + ", ";
+
+				ret_data.false_composites.push_back(i);
 			}
 			read_next = true;
 		}
@@ -182,10 +186,14 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes() {
 		if (sieve_result && !tester_result) {			//Sieve finding prime when RM doesn't -> false prime
 			num_of_misses++;
 			false_primes += std::to_string(i) + ", ";
+
+			ret_data.false_primes.push_back(i);
 		}
 		else if (!sieve_result && tester_result) {	//Sieve not finding prime when RM does -> miss
 			num_of_misses++;
 			missed_primes += std::to_string(i) + ", ";
+
+			ret_data.false_composites.push_back(i);
 		}
 	}
 
@@ -204,6 +212,14 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes() {
 
 	//Return
 	return ret_data;
+}
+
+size_t SieveBase::CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref) {
+	size_t ret_val = 0;
+	for (size_t i = 0; i < in_vec_ref.size(); i++) {
+		if (in_vec_ref[i] >= in_start && in_vec_ref[i] <= in_end) { ret_val++; }
+	}
+	return ret_val;
 }
 
 //Public-------------------------------------------------------------------------------------------
@@ -330,6 +346,55 @@ void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name)
 	str += this->timer_.GetTotalSeparatorString(separator);
 	str += this->timer_.GetLapsSeparatorString(separator);
 	str += "\n"; //End entry
+
+	//Write to file
+	fwrite(str.c_str(), sizeof(char), str.size(), file_ptr);
+
+	//Close file
+	fclose(file_ptr);
+}
+
+void SieveBase::SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name) {
+	//Open file
+	FILE* file_ptr = nullptr;
+	errno_t error;
+	error = fopen_s(&file_ptr, (in_folder_path + in_file_name).c_str(), "a");
+	if (file_ptr == nullptr) {
+		std::cerr << ("Error: Could not open file '" + in_folder_path + in_file_name + "'\n");
+		return;
+	}
+
+	//Count primes
+	std::vector<size_t> p = this->PrimeVector();
+	//Count misses
+	VerificationData v = this->VerifyByEratosthenes();
+
+
+	//Build line to be appended into file
+	std::string str = "";
+	std::string separator = "\t";
+
+	str += in_entry_name + separator;								//Name
+	str += std::to_string(this->end_) + separator;					//N
+	str += v.accuracy_str + separator;								//Accuracy
+	str += std::to_string(p.size()) + separator;					//Total number of primes
+	str += std::to_string(v.false_primes.size()) + separator;		//Number of false primes
+	str += std::to_string(v.false_composites.size()) + separator;	//Number of false composites
+	str += "\n"; //End line
+
+	for (size_t region_start = 10; region_start < 1000000000; region_start *= 10) {
+		size_t region_end = (region_start * 10) - 1;
+
+		str += "[" + std::to_string(region_start) + ", " + std::to_string(region_end) + "]" + separator;
+		str += std::to_string(this->CountNumbersInRegion(region_start, (region_end), p)) + separator;
+		str += std::to_string(this->CountNumbersInRegion(region_start, (region_end), v.false_primes)) + separator;
+		str += std::to_string(this->CountNumbersInRegion(region_start, (region_end), v.false_composites)) + separator;
+		str += "\n"; //End line
+	}
+
+	//str += "\n" + v.miss_str + "\n";
+
+	str += "\n-----\n"; //End entry
 
 	//Write to file
 	fwrite(str.c_str(), sizeof(char), str.size(), file_ptr);
