@@ -14,10 +14,10 @@ __global__ void SundaramBatchKernel(
 	//unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
 	size_t i = blockIdx.x*blockDim.x + threadIdx.x;
 
-
 	//Test: Flips every other generation true/false
 	//in_device_memory[i] = (in_generation % 2 == 0);
-
+	
+	
 	//---BATCH CURRENT GENERATION---
 	//The first cuda thread has id 0
 	//We offset by in_start (in the very beginning this is 1 since Sundaram starts at 1)
@@ -122,7 +122,32 @@ SieveSundaramCUDABatches::SieveSundaramCUDABatches(size_t in_n)// {
 	this->timer_.SaveTime();
 }
 
+SieveSundaramCUDABatches::SieveSundaramCUDABatches(size_t in_n, PrimeMemoryFragsafe * in_ptr)// {
+	: SieveBase(1, in_n), SieveCUDABatches() {
+
+	//Determine memory capacity needed
+	//NTS: +1 since we round up
+	size_t mem_size = ((in_n - 2) / 2) + ((in_n - 2) % 2);
+
+	//Set fragsafe memory
+	in_ptr->AllocateSubMemory(mem_size);
+	this->mem_class_ptr_ = in_ptr;
+	this->LinkMemory(this->mem_class_ptr_);
+
+	//Sundaram starts all as primes
+	this->mem_class_ptr_->SetAllPrime();
+
+	this->timer_.SaveTime();
+
+	this->DoSieve();
+
+	this->timer_.SaveTime();
+}
+
 SieveSundaramCUDABatches::~SieveSundaramCUDABatches() {
+	//Do not delete memory if its a fragsafe pointer
+	if (dynamic_cast<PrimeMemoryFragsafe*>(this->mem_class_ptr_) != nullptr) { return; }
+
 	if (this->mem_class_ptr_ != nullptr) {
 		delete this->mem_class_ptr_;
 		this->mem_class_ptr_ = nullptr;
@@ -132,6 +157,9 @@ SieveSundaramCUDABatches::~SieveSundaramCUDABatches() {
 bool SieveSundaramCUDABatches::IsPrime(size_t in_num) {
 	//Everything outside scope is false
 	if (in_num < this->start_ || in_num > this->end_) { return false; }
+
+	//Anything smaller than 2 is not a prime
+	if (in_num < 2) { return false; }
 
 	//Sundaram's sieve does not store even numbers
 	//> 2 special case

@@ -12,15 +12,24 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop, 0);
 	size_t gpu_global_mem_capacity = prop.totalGlobalMem;
-	//size_t gpu_global_mem_capacity = 5;
+
+	//
+	//NTS:	In current experiments we already only use 1/3rd
+	//		By dividing on 9 we get a third of that
+	//gpu_global_mem_capacity /= 9;
+	//gpu_global_mem_capacity = 1025;
+	gpu_global_mem_capacity = 1000;
+	//	  100000000 <- Breaks when sending in this as n, with any small memory maximum
 
 	//Fetch the number of bytes stored on the CPU side memory
 	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();
 
-	//The number of threads we need to launch is dependent on
-	//if there are more bytes than the GPU can hold.
+	//Either one batch with x threads id enough, or we need y batches with max threads
 	this->threads_per_batch_ = std::min(bytes_to_allocate, gpu_global_mem_capacity);
-	
+
+	size_t batches_required = (bytes_to_allocate / gpu_global_mem_capacity);		//Number of full batches
+	if (bytes_to_allocate % gpu_global_mem_capacity != 0) { batches_required++; }	//If there are any leftover numbers
+
 	//Index the batches to be launched with:
 	//>	A pointer to the memory they start at
 	//>	The number they start sieving at
@@ -28,26 +37,19 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	//size_t batch_num = 0;
 	bool* mem_ptr = static_cast<bool*>(this->sieve_mem_ptr_->getMemPtr());
 
-	size_t batches_required = (bytes_to_allocate / gpu_global_mem_capacity);		//Number of full batches
-	if (bytes_to_allocate % gpu_global_mem_capacity != 0) { batches_required++; }	//If there are any leftover numbers
+	
 
 	for (size_t batch_num = 0; batch_num < batches_required; batch_num++) {
 		//Create batch and calculate its offset
 		Batch b;
-		size_t offset = batch_num * gpu_global_mem_capacity;
+		size_t offset = batch_num * threads_per_batch_;
 
 		//Calculate the adress in the memory the batch starts at
 		b.batch_ptr = mem_ptr + offset;
 
-		//Calculate how big the batch is
-		//b.batch_size = (batch_num + 1 == batches_required) ? (bytes_to_allocate % gpu_global_mem_capacity) : gpu_global_mem_capacity;
-		b.batch_size = std::min(bytes_to_allocate, gpu_global_mem_capacity);
-		bytes_to_allocate -= gpu_global_mem_capacity;
-
-
 		//Calculate the first and last number that is part of the batch
 		b.batch_start_number = in_sieve_start + offset;
-		b.batch_end_number = b.batch_start_number + b.batch_size - 1;
+		b.batch_end_number = std::min(b.batch_start_number + threads_per_batch_ - 1, in_sieve_end);
 
 		//Save batch
 		this->batches_.push_back(b);
@@ -58,11 +60,12 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	CUDAErrorOutput(
 		cudaMalloc(
 		(void**)&(this->device_mem_ptr_),
-			this->batches_[0].batch_size	//The first batch is always large enough. Either it is maxed out and
-		),									//all other batches are the same or smaller, or it is the only batch.
+			threads_per_batch_
+		),
 		"cudaMalloc()", __FUNCTION__
 	);
 }
+
 
 void SieveCUDABatches::DeallocateGPUMemory() {
 	//Deallocate the memory on device
@@ -74,12 +77,16 @@ void SieveCUDABatches::DeallocateGPUMemory() {
 }
 
 void SieveCUDABatches::UploadMemory(size_t in_i) {
+	
+	//Calc batch size
+	size_t batch_size = this->batches_[in_i].batch_end_number - this->batches_[in_i].batch_start_number + 1;
+
 	//Upload batch on given index
 	CUDAErrorOutput(
 		cudaMemcpy(
 			this->device_mem_ptr_,					//Target
 			this->batches_[in_i].batch_ptr,			//Source
-			this->batches_[in_i].batch_size,		//Byte count
+			batch_size,								//Byte count
 			cudaMemcpyHostToDevice					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__
@@ -87,12 +94,16 @@ void SieveCUDABatches::UploadMemory(size_t in_i) {
 }
 
 void SieveCUDABatches::DownloadMemory(size_t in_i) {
+	
+	//Calc batch size
+	size_t batch_size = this->batches_[in_i].batch_end_number - this->batches_[in_i].batch_start_number + 1;
+
 	//Download batch on given index
 	CUDAErrorOutput(
 		cudaMemcpy(
 			this->batches_[in_i].batch_ptr,			//Target
 			this->device_mem_ptr_,					//Source
-			this->batches_[in_i].batch_size,		//Byte count
+			batch_size,								//Byte count
 			cudaMemcpyDeviceToHost					//Transfer type
 		),
 		"cudaMemcpy()", __FUNCTION__

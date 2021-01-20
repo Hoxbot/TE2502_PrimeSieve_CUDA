@@ -7,6 +7,8 @@
 #include "sieve_base.h"
 #include "sieve_cuda_batches.cuh"
 
+#include "prime_memory/prime_memory_fragsafe.h"
+
 //CUDA Stuff
 __global__ void SundaramBatchKernel(
 	size_t in_start, 
@@ -32,6 +34,7 @@ private:
 	size_t IndexToNumber(size_t in_i);
 public:
 	SieveSundaramCUDABatches(size_t in_n);
+	SieveSundaramCUDABatches(size_t in_n, PrimeMemoryFragsafe* in_ptr);
 	~SieveSundaramCUDABatches();
 
 	bool IsPrime(size_t in_num);

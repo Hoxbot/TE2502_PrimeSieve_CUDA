@@ -12,9 +12,7 @@
 class SieveCUDABatches {
 private:
 	struct Batch {
-		//Batch(size_t i, size_t s) { batch_index = i; batch_size = s; }
 		bool* batch_ptr;
-		size_t batch_size;
 		
 		size_t batch_start_number;
 		size_t batch_end_number;

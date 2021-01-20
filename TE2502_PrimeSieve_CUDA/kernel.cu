@@ -163,6 +163,7 @@ int main() {
 	*/
 
 	/*GENERAL RUN 2 */
+	/*
 	//Run a initializing GPGPU sieve
 	std::cout << ">Running init sieve\n";
 	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
@@ -221,6 +222,57 @@ int main() {
 			}	
 		}
 	}
+	*/
+
+	/*BATCH DIVIDED SUNDARAM (GENERAL RUN 2 TEMPLATE) */
+	//Run a initializing GPGPU sieve
+	std::cout << ">Running init sieve\n";
+	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
+	std::cout << ">Going to sleep.\n";
+	std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
+
+	//Select Sieve
+	for (size_t s_i = 0; s_i < 2; s_i++) {
+
+		size_t inc = n_s;
+
+		//Select Sieve Limit
+		for (size_t n_i = n_s; n_i <= 1000000; n_i = n_i + inc) {
+
+			if (n_i >= 10 * inc) { inc *= 10; }	//Scales it to be 10 steps per iteration
+
+			//Sieve 10 times on selected limit with selected sieve
+			for (size_t i = 0; i < 10; i++) {
+				SieveBase* sieve_ptr;
+
+				switch (s_i) {
+				case 0:
+					std::cout << ">Starting sieve Sundaram GPGPU (n=" << n_i << ")\n";
+					sieve_ptr = new SieveSundaramCUDA(n_i, safe_mem_ptr);
+					std::cout << ">Sieve done. Verifying and saving to file.\n";
+					sieve_ptr->SaveToFile("sieve results/", "SUNDARAM_GPGPU_spec.tsv", verification_mem_ptr);
+					break;
+				case 1:
+					std::cout << ">Starting sieve Sundaram GPGPU Batch Divided(n=" << n_i << ")\n";
+					sieve_ptr = new SieveSundaramCUDABatches(n_i, safe_mem_ptr);
+					std::cout << ">Sieve done. Verifying and saving to file.\n";
+					sieve_ptr->SaveToFile("sieve results/", "SUNDARAM_GPGPU_BATCH_DIVIDED_spec.tsv", verification_mem_ptr);
+					break;
+				default:
+					break;
+				}
+
+				delete sieve_ptr;
+
+				//Sleep for x sec to ensure program has time to deallocate memory properly
+				std::cout << ">Going to sleep.\n";
+				std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
+
+			}
+		}
+	}
+
+
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and
