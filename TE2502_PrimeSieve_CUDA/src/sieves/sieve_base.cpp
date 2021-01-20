@@ -225,18 +225,19 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes(PrimeMemoryFragsafe*
 	std::string missed_primes = "";
 
 	//Create a memory to hold the memory of the checker sieve
-	in_ptr->AllocateSubMemory(this->end_ + 1); //+1 : inclusive	//NTS: *Shouldn't* be deleted! Is a fragsafe memory
-	PrimeMemoryBool* tester_mem = in_ptr;
+	bool cat = in_ptr->AllocateSubMemory(this->end_); //-2+1 : inclusive
+	if (!cat) { std::cout << "oops\n"; }
+	PrimeMemoryBool* tester_mem = in_ptr;	//NTS: *Shouldn't* be deleted! Is a fragsafe memory
 	tester_mem->SetAllPrime();
-	tester_mem->SetNonPrime(0);
-	tester_mem->SetNonPrime(1);
+	tester_mem->SetNonPrime(0);	//Set one as non-prime
+	//tester_mem->SetNonPrime(1);
 
 	//Sieve via Eratosthenes
 	unsigned int root_of_end = std::sqrt(this->end_) + 1;
 	for (size_t i = 2; i < root_of_end; i++) {
-		if (tester_mem->CheckIndex(i)) {
+		if (tester_mem->CheckIndex(i-1)) {
 			for (size_t j = i * i; j <= this->end_; j = j + i) {
-				tester_mem->SetNonPrime(j);
+				tester_mem->SetNonPrime(j-1);
 			}
 		}
 	}
@@ -245,7 +246,7 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes(PrimeMemoryFragsafe*
 	size_t num_of_misses = 0;
 	for (size_t i = this->start_; i < this->end_; i++) {
 		bool sieve_result = this->IsPrime(i);
-		bool tester_result = tester_mem->CheckIndex(i);
+		bool tester_result = tester_mem->CheckIndex(i-1);
 
 		//When the results differ, log false primes / misses
 		if (sieve_result && !tester_result) {			//Sieve finding prime when RM doesn't -> false prime

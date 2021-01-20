@@ -109,8 +109,9 @@ int main() {
 	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
 
 	//Test
-	SieveSundaramCUDABatches sieve = SieveSundaramCUDABatches(n, safe_mem_ptr);
-	std::cout << sieve.StringifyResults();
+	SieveSundaramCUDABatches* sieve_ptr = new SieveSundaramCUDABatches(n, safe_mem_ptr);
+	std::cout << sieve_ptr->StringifyResults("Sundaram Batches", verification_mem_ptr) << "\n";
+	delete sieve_ptr;
 	//Test
 
 	/* GENERAL RUN */
