@@ -96,17 +96,22 @@ int main() {
 	m[ATKIN_GPGPU]			= "ATKIN_GPGPU";
 
 	//         3221225472
-	size_t n = 1000000000;
-	//size_t n = 1000;
-	size_t n_s = 100;
-	//size_t n_s = 100000000;
+	//size_t n = 1000000000;	//10^9
+	//size_t n_s = 100;			//10^2
 	unsigned int sleep_sec = 1;
+
+	//Test
+	size_t n = 1000;
+	//size_t n_s = 100000000;
+	//Test
 
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
 	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
 
-	//SieveEratosthenesCPU(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
-	//SieveEratosthenesCUDA(n, safe_mem_ptr).SaveToFile("sieve results/", "fragsafetest.tsv", verification_mem_ptr);
+	//Test
+	SieveSundaramCUDABatches sieve = SieveSundaramCUDABatches(n, safe_mem_ptr);
+	std::cout << sieve.StringifyResults();
+	//Test
 
 	/* GENERAL RUN */
 	/*
@@ -225,6 +230,7 @@ int main() {
 	*/
 
 	/*BATCH DIVIDED SUNDARAM (GENERAL RUN 2 TEMPLATE) */
+	/*
 	//Run a initializing GPGPU sieve
 	std::cout << ">Running init sieve\n";
 	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
@@ -271,8 +277,7 @@ int main() {
 			}
 		}
 	}
-
-
+	*/
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

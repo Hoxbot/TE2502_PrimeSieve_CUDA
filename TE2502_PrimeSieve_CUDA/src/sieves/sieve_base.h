@@ -22,7 +22,7 @@ private:
 
 	VerificationData VerifyByFile();
 	VerificationData VerifyByRabinMiller();
-	VerificationData VerifyByEratosthenes();
+	//VerificationData VerifyByEratosthenes();
 	VerificationData VerifyByEratosthenes(PrimeMemoryFragsafe* in_ptr);
 
 	size_t CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref);
@@ -49,15 +49,17 @@ public:
 	std::string StringifyPrimes();
 	std::string StringifyTrackerArr();
 	std::string StringifyExecutionTime();
-	std::string StringifyResults(std::string in_title);
+	//std::string StringifyResults(std::string in_title);
+	std::string StringifyResults(std::string in_title, PrimeMemoryFragsafe* in_ptr);
+
 
 	std::vector<size_t> PrimeVector();
 	
-	void SaveToFile(std::string in_folder_path, std::string in_file_name);
+	//void SaveToFile(std::string in_folder_path, std::string in_file_name);
 	void SaveToFile(std::string in_folder_path, std::string in_file_name, PrimeMemoryFragsafe* in_ptr);
 
-	void SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name);
-	
+	void SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name, PrimeMemoryFragsafe* in_ptr);
+
 };
 
 #endif // !SIEVE_BASE_H

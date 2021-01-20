@@ -154,6 +154,7 @@ SieveBase::VerificationData SieveBase::VerifyByRabinMiller() {
 	return ret_data;
 }
 
+/*
 SieveBase::VerificationData SieveBase::VerifyByEratosthenes() {
 	//Return-value struct
 	VerificationData ret_data;
@@ -213,6 +214,7 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes() {
 	//Return
 	return ret_data;
 }
+*/
 
 SieveBase::VerificationData SieveBase::VerifyByEratosthenes(PrimeMemoryFragsafe* in_ptr) {
 	//Same as above but doesn't allocate a PrimeMemoryBool to verify against
@@ -340,6 +342,7 @@ std::string SieveBase::StringifyExecutionTime() {
 	return ret_str;
 }
 
+/*
 std::string SieveBase::StringifyResults(std::string in_title) {
 	//Fix the string
 	std::string ret_str = "";
@@ -374,6 +377,43 @@ std::string SieveBase::StringifyResults(std::string in_title) {
 	//Return
 	return ret_str;
 }
+*/
+
+std::string SieveBase::StringifyResults(std::string in_title, PrimeMemoryFragsafe* in_ptr) {
+	//Fix the string
+	std::string ret_str = "";
+
+	//Set title
+	ret_str += "---" + in_title + "---\n";
+
+	//Loop over memory, count number of primes found
+	int num_of_p = 0;
+	for (size_t i = 0; i < this->mem_class_ptr_->NumberCapacity(); i++) {
+		if (this->mem_class_ptr_->CheckIndex(i)) { num_of_p++; }
+	}
+
+	//Calculate accuracy and format string
+	//VerificationData v = this->VerifyByFile();
+	//VerificationData v = this->VerifyByRabinMiller();
+	VerificationData v = this->VerifyByEratosthenes(in_ptr);
+
+
+	//Fill fields:
+	ret_str += "Range:\t\t\t[" + std::to_string(this->start_) + ", " + std::to_string(this->end_) + "]\n";
+	ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
+	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
+	ret_str += "Accuracy:\t\t" + v.accuracy_str + "%\n";
+	//if (v.miss_str.size() != 0) { ret_str += "Misses:\t\t\t[" + v.miss_str + "]\n"; }
+	ret_str += this->StringifyExecutionTime() + "\n";
+	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
+
+	//TEMP: Nulls string if accuracy_tring is empty (means we will only see errors)
+	//if (v.miss_str.empty()) { ret_str = ""; } else { ret_str += "\n"; }
+
+	//Return
+	return ret_str;
+}
+
 
 std::vector<size_t> SieveBase::PrimeVector() {
 	std::vector<size_t> ret_vec;
@@ -387,6 +427,7 @@ std::vector<size_t> SieveBase::PrimeVector() {
 	return ret_vec;
 }
 
+/*
 void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name) {
 	//Open file
 	FILE* file_ptr = nullptr;
@@ -417,6 +458,7 @@ void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name)
 	//Close file
 	fclose(file_ptr);
 }
+*/
 
 void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name, PrimeMemoryFragsafe* in_ptr) {
 	//Open file
@@ -450,7 +492,7 @@ void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name,
 }
 
 
-void SieveBase::SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name) {
+void SieveBase::SaveRegionalDataToFile(std::string in_folder_path, std::string in_file_name, std::string in_entry_name, PrimeMemoryFragsafe* in_ptr) {
 	//Open file
 	FILE* file_ptr = nullptr;
 	errno_t error;
@@ -463,7 +505,7 @@ void SieveBase::SaveRegionalDataToFile(std::string in_folder_path, std::string i
 	//Count primes
 	std::vector<size_t> p = this->PrimeVector();
 	//Count misses
-	VerificationData v = this->VerifyByEratosthenes();
+	VerificationData v = this->VerifyByEratosthenes(in_ptr);
 
 
 	//Build line to be appended into file
