@@ -1,5 +1,7 @@
 #include "prime_memory_bool.h"
 
+#include <cstring>
+
 //Private------------------------------------------------------------------------------------------
 
 
@@ -44,15 +46,23 @@ void PrimeMemoryBool::FlipPrime(size_t in_i) {
 }
 
 void PrimeMemoryBool::SetAllNonPrime() {
+	/*
 	for (unsigned int i = 0; i < this->mem_size_; i++) {
 		this->SetNonPrime(i);
 	}
+	*/
+
+	std::memset(this->mem_arr_, false, this->mem_size_);
 }
 
 void PrimeMemoryBool::SetAllPrime() {
+	/*
 	for (unsigned int i = 0; i < this->mem_size_; i++) {
 		this->SetPrime(i);
 	}
+	*/
+
+	std::memset(this->mem_arr_, true, this->mem_size_);
 }
 
 

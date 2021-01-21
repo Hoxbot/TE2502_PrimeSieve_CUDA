@@ -45,6 +45,8 @@ __global__ void SundaramBatchKernel(
 		//size_t b = 2 * i + 1;
 		//float j_start = ceil((float)a/(float)b);
 		
+		/*^^^NTS: Working here, is it this (division) that fucks the batches up?^^^*/
+
 		//Remember that j >= i, so we never start from a j less than i
 		j_start = fmaxf(j_start, i); 
 		//If j_start is set to i
@@ -53,7 +55,13 @@ __global__ void SundaramBatchKernel(
 
 		//Run iterations until we reach the end of span (in_end)
 		for (size_t j = j_start; (i + j + 2*i*j) <= in_end; j++) {
-			in_device_memory[(i + j + 2*i*j) - in_start] = false;		// NTS: (-in_start) offsets to correct array index
+			
+			//Testing safeguard
+			size_t index = (i + j + 2*i*j) - in_start;
+			if (/*index >= 0 &&*/ index < in_batch_size) {
+				in_device_memory[index] = false;		// NTS: (-in_start) offsets to correct array index
+			}
+			//
 		}
 	}
 	

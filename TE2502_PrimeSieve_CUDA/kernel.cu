@@ -101,12 +101,32 @@ int main() {
 	unsigned int sleep_sec = 1;
 
 	//Test
-	size_t n = 1000;
-	//size_t n_s = 100000000;
+	//n=10^7, batch_limit=10^3	:	works
+
+	//n=10^8, batch_limit=10^3	:	fails
+
+	//n=10^8, batch_limit=10^7	:	fails
+	//	>5 batches a la 9765 threads
+	//	>4th one produces error (batch id:3)
+	//
+	//	>>Index safeguard fixes it, something is wrong in kernel maths
+	//	>>> Index sometimes exceeds max limit : bad!
+	//	>>> Index never seems to drop below zero : good!
+	//
+	//For some reason I cannot allocate full global memory. Hmmmmm...
+
+	//n=10^8, batch_limit=10^8	:	works
+
+	size_t n = 10000000000;	//10^10
 	//Test
 
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
 	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
+
+	std::cout 
+		<< ">Program FragSafe Memory Total: " 
+		<< safe_mem_ptr->BytesAllocated() + verification_mem_ptr->BytesAllocated()
+		<< " bytes\n";
 
 	//Test
 	SieveSundaramCUDABatches* sieve_ptr = new SieveSundaramCUDABatches(n, safe_mem_ptr);

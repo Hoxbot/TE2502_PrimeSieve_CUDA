@@ -18,8 +18,8 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	//		By dividing on 9 we get a third of that
 	//gpu_global_mem_capacity /= 9;
 	//gpu_global_mem_capacity = 1025;
-	gpu_global_mem_capacity = 1000;
-	//	  100000000 <- Breaks when sending in this as n, with any small memory maximum
+	gpu_global_mem_capacity = 1000000000; //1*10^9
+	//gpu_global_mem_capacity = 1000; //1*10^3
 
 	//Fetch the number of bytes stored on the CPU side memory
 	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();
@@ -42,7 +42,7 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	for (size_t batch_num = 0; batch_num < batches_required; batch_num++) {
 		//Create batch and calculate its offset
 		Batch b;
-		size_t offset = batch_num * threads_per_batch_;
+		size_t offset = batch_num * this->threads_per_batch_;
 
 		//Calculate the adress in the memory the batch starts at
 		b.batch_ptr = mem_ptr + offset;
@@ -60,7 +60,7 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 	CUDAErrorOutput(
 		cudaMalloc(
 		(void**)&(this->device_mem_ptr_),
-			threads_per_batch_
+			this->threads_per_batch_
 		),
 		"cudaMalloc()", __FUNCTION__
 	);
