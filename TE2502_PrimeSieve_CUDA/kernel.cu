@@ -102,6 +102,7 @@ enum SieveType {
 	ERATOSTHENES_GPGPU,
 	SUNDARAM_CPU,
 	SUNDARAM_GPGPU,
+	SUNDARAM_GPGPU_BATCH_DIVIDED,
 	ATKIN_CPU,
 	ATKIN_GPGPU,
 	ENUM_END,
@@ -136,41 +137,22 @@ int main() {
 	m[ATKIN_GPGPU]			= "ATKIN_GPGPU";
 
 	//         3221225472
-	//size_t n = 1000000000;	//10^9
-	//size_t n_s = 100;			//10^2
+	//size_t n = 10000000000;		//10^10
+	size_t n = 400;
+	size_t n_s = 100;			//10^2
 	unsigned int sleep_sec = 1;
 
 	//Test
-	//n=10^7, batch_limit=10^3	:	works
-
-	//n=10^8, batch_limit=10^3	:	fails
-
-	//n=10^8, batch_limit=10^7	:	fails
-	//	>5 batches a la 9765 threads
-	//	>4th one produces error (batch id:3)
-	//
-	//	>>Index safeguard fixes it, something is wrong in kernel maths
-	//	>>> Index sometimes exceeds max limit : bad!
-	//	>>> Index never seems to drop below zero : good!
-	//
-	//For some reason I cannot allocate full global memory. Hmmmmm...
-
-	//n=10^8, batch_limit=10^8	:	works
-
-	//size_t n = 10000000000;	//10^10 works
+	size_t n = 10000000000;	//10^10 works
 	//size_t n = 100000000000;	//10^11 doesn't	
 	//	:	It is probably about it exceeding my RAM size (16 Gb)
 	//	:	But then why does 10^10 work? That requires 20 Gb. Hmm...
-	
-	//size_t n = 28100000000;	//2.81*10^10
-	//-> My virtual memory seems to allow ~56.2 GB
-	
-	//		   xyyyyyxxxxx
-	size_t n = 25000000000;	//2.5*10^10
+	//	-> My virtual memory seems to allow ~56.2 GB
+	// Any limit closing in on 1.6*10^10 makes memset in the SetPrimes functions slow as fuck
 	//Test
 
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
-	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(1);
+	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
 
 	size_t bytes = safe_mem_ptr->BytesAllocated() + verification_mem_ptr->BytesAllocated();
 	std::cout 
@@ -181,17 +163,19 @@ int main() {
 	//OutputSpecs();
 
 	//Test
+	/*
 	//Set verification memory using Atkin CPU
-	//std::cout << ">Setting verification memory\n";
-	//SieveAtkinCPU(n, verification_mem_ptr);
+	std::cout << ">Setting verification memory\n";
+	SieveAtkinCPU(n, verification_mem_ptr);
 
 	//Do batched sieve
-	
 	std::cout << ">Starting sieve\n";
 	SieveSundaramCUDABatches* sieve_ptr = new SieveSundaramCUDABatches(n, safe_mem_ptr);
-	/*
+	
 	std::cout << ">Verifying\n";
 	std::cout << sieve_ptr->StringifyResults("Sundaram Batches", verification_mem_ptr) << "\n";
+	
+	std::cout << ">Cleaning\n";
 	delete sieve_ptr;
 	*/
 	//Test
@@ -313,7 +297,6 @@ int main() {
 	*/
 
 	/*BATCH DIVIDED SUNDARAM (GENERAL RUN 2 TEMPLATE) */
-	/*
 	//Run a initializing GPGPU sieve
 	std::cout << ">Running init sieve\n";
 	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
@@ -321,12 +304,13 @@ int main() {
 	std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
 
 	//Select Sieve
-	for (size_t s_i = 0; s_i < 2; s_i++) {
+	SieveType arr[3] = { ATKIN_CPU, SUNDARAM_GPGPU, SUNDARAM_GPGPU_BATCH_DIVIDED };
+	for (size_t s_i = 0; s_i < 3; s_i++) {
 
 		size_t inc = n_s;
 
 		//Select Sieve Limit
-		for (size_t n_i = n_s; n_i <= 1000000; n_i = n_i + inc) {
+		for (size_t n_i = n_s; n_i <= n; n_i = n_i + inc) {
 
 			if (n_i >= 10 * inc) { inc *= 10; }	//Scales it to be 10 steps per iteration
 
@@ -334,22 +318,31 @@ int main() {
 			for (size_t i = 0; i < 10; i++) {
 				SieveBase* sieve_ptr;
 
-				switch (s_i) {
-				case 0:
-					std::cout << ">Starting sieve Sundaram GPGPU (n=" << n_i << ")\n";
-					sieve_ptr = new SieveSundaramCUDA(n_i, safe_mem_ptr);
-					std::cout << ">Sieve done. Verifying and saving to file.\n";
-					sieve_ptr->SaveToFile("sieve results/", "SUNDARAM_GPGPU_spec.tsv", verification_mem_ptr);
+				std::cout << ">Starting sieve " << m[arr[s_i]] << " (n=" << n_i << ")\n";
+
+				switch (arr[s_i]) {
+				case SUNDARAM_GPGPU:
+					//NTS: This sieve cannot go higher than the GPU memory limit
+					if (n_i <= 2000000000) {	//2*10^9
+						sieve_ptr = new SieveSundaramCUDA(n_i, safe_mem_ptr);
+					}
+					else {
+						sieve_ptr = new SieveSundaramCUDA(10, safe_mem_ptr);
+					}
 					break;
-				case 1:
-					std::cout << ">Starting sieve Sundaram GPGPU Batch Divided(n=" << n_i << ")\n";
+				case SUNDARAM_GPGPU_BATCH_DIVIDED:
 					sieve_ptr = new SieveSundaramCUDABatches(n_i, safe_mem_ptr);
-					std::cout << ">Sieve done. Verifying and saving to file.\n";
-					sieve_ptr->SaveToFile("sieve results/", "SUNDARAM_GPGPU_BATCH_DIVIDED_spec.tsv", verification_mem_ptr);
+					break;
+				case ATKIN_GPGPU:
+					sieve_ptr = new SieveAtkinCUDA(n_i, safe_mem_ptr);
 					break;
 				default:
 					break;
 				}
+
+				std::cout << ">Sieve done. Verifying and saving to file.\n";
+				sieve_ptr->SaveToFile("sieve results/", m[arr[s_i]] + "_6.tsv", verification_mem_ptr);
+				//std::cout << sieve_ptr->StringifyResults("Results") << std::endl;
 
 				delete sieve_ptr;
 
@@ -360,7 +353,6 @@ int main() {
 			}
 		}
 	}
-	*/
 
 	//---
     // cudaDeviceReset must be called before exiting in order for profiling and

@@ -60,7 +60,7 @@ void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_
 		this->batches_.push_back(b);
 	}
 
-
+	std::cout << ">>\tAllocating " << this->threads_per_batch_ << " bytes on device\n";
 	//Allocate memory on device
 	CUDAErrorOutput(
 		cudaMalloc(
