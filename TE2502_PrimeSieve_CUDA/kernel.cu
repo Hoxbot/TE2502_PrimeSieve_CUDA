@@ -133,17 +133,17 @@ int main() {
 	m[ERATOSTHENES_GPGPU]	= "ERATOSTHENES_GPGPU";
 	m[SUNDARAM_CPU]			= "SUNDARAM_CPU";
 	m[SUNDARAM_GPGPU]		= "SUNDARAM_GPGPU";
+	m[SUNDARAM_GPGPU_BATCH_DIVIDED] = "SUNDARAM_GPGPU_BATCH_DIVIDED";
 	m[ATKIN_CPU]			= "ATKIN_CPU";
 	m[ATKIN_GPGPU]			= "ATKIN_GPGPU";
 
-	//         3221225472
-	//size_t n = 10000000000;		//10^10
-	size_t n = 400;
+	//          3221225472
+	size_t n = 10000000000;		//10^10
 	size_t n_s = 100;			//10^2
 	unsigned int sleep_sec = 1;
 
 	//Test
-	size_t n = 10000000000;	//10^10 works
+	//size_t n = 10000000000;	//10^10 works
 	//size_t n = 100000000000;	//10^11 doesn't	
 	//	:	It is probably about it exceeding my RAM size (16 Gb)
 	//	:	But then why does 10^10 work? That requires 20 Gb. Hmm...
@@ -297,9 +297,12 @@ int main() {
 	*/
 
 	/*BATCH DIVIDED SUNDARAM (GENERAL RUN 2 TEMPLATE) */
+	std::cout << ">Setting verification memory\n";
+	SieveAtkinCPU(n, verification_mem_ptr);
+
 	//Run a initializing GPGPU sieve
-	std::cout << ">Running init sieve\n";
-	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv");
+	std::cout << ">Running GPGPU init sieve\n";
+	SieveSundaramCUDA(10).SaveToFile("sieve results/", "_init_run.tsv", safe_mem_ptr);
 	std::cout << ">Going to sleep.\n";
 	std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
 
@@ -321,6 +324,9 @@ int main() {
 				std::cout << ">Starting sieve " << m[arr[s_i]] << " (n=" << n_i << ")\n";
 
 				switch (arr[s_i]) {
+				case ATKIN_CPU:
+					sieve_ptr = new SieveAtkinCPU(n_i, safe_mem_ptr);
+					break;
 				case SUNDARAM_GPGPU:
 					//NTS: This sieve cannot go higher than the GPU memory limit
 					if (n_i <= 2000000000) {	//2*10^9
@@ -332,9 +338,6 @@ int main() {
 					break;
 				case SUNDARAM_GPGPU_BATCH_DIVIDED:
 					sieve_ptr = new SieveSundaramCUDABatches(n_i, safe_mem_ptr);
-					break;
-				case ATKIN_GPGPU:
-					sieve_ptr = new SieveAtkinCUDA(n_i, safe_mem_ptr);
 					break;
 				default:
 					break;
