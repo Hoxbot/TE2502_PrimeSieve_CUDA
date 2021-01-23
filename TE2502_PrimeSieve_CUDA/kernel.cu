@@ -9,8 +9,10 @@
 #include <map>
 #include <string>
 
-#include <thread>         // std::this_thread::sleep_for
-#include <chrono>         // std::chrono::seconds
+#include <thread>       // std::this_thread::sleep_for
+#include <chrono>       // std::chrono::seconds
+
+#include <Windows.h>	// For memory specs
 
 //For memory leaks
 #define _CRTDBG_MAP_ALLOC
@@ -36,6 +38,63 @@ inline void WaitForEnter() {
 	std::string str;
 	std::cout << "Enter to continue..." << std::endl;
 	std::getline(std::cin, str);
+}
+
+inline void OutputSpecs() {
+	//Get Local System capabilities
+	MEMORYSTATUSEX statex;
+	statex.dwLength = sizeof(statex);
+	GlobalMemoryStatusEx(&statex);
+
+	//Get GPU capabilities
+	cudaDeviceProp prop;
+	cudaGetDeviceProperties(&prop, 0);
+	size_t mem_tot, mem_free;
+	cudaMemGetInfo(&mem_free, &mem_tot);
+
+	//Output
+	std::cout << "\n";
+	std::cout
+		<< "\tC++ ver.: " << __cplusplus << "\n"
+		<< "\tCUDA ver.: " << 10.2 << "\n";
+
+	std::cout
+		<< "\t---CPU SIDE---\n"
+		<< "\tPhysical Memory:\n"
+		<< "\t\tTotal:\t\t\t\t" << statex.ullTotalPhys << " bytes\n"
+		<< "\t\tUsed:\t\t\t\t" << statex.ullTotalPhys - statex.ullAvailPhys << " bytes\n"
+		<< "\t\tFree:\t\t\t\t" << statex.ullAvailPhys << " bytes\n"
+		<< "\tPaging File:\n"
+		<< "\t\tTotal:\t\t\t\t" << statex.ullTotalPageFile << " bytes\n"
+		<< "\t\tUsed:\t\t\t\t" << statex.ullTotalPageFile - statex.ullAvailPageFile << " bytes\n"
+		<< "\t\tFree:\t\t\t\t" << statex.ullAvailPageFile << " bytes\n"
+		<< "\tVirtual memory:\n"
+		<< "\t\tTotal:\t\t\t\t" << statex.ullTotalVirtual << " bytes\n"
+		<< "\t\tUsed:\t\t\t\t" << statex.ullTotalVirtual - statex.ullAvailVirtual << " bytes\n"
+		<< "\t\tFree:\t\t\t\t" << statex.ullAvailVirtual << " bytes\n"
+		<< "\tExtended Memory:\n"
+		<< "\t\tFree:\t\t\t\t" << statex.ullAvailExtendedVirtual << " bytes\n";
+
+	std::cout
+		<< "\t---CUDA SIDE---\n"
+		<< "\tProperties:\n"
+		<< "\t\tGlobal memory:\t\t\t" << prop.totalGlobalMem << " bytes\n"
+		<< "\t\tShared memory:\t\t\t" << prop.sharedMemPerBlock << " bytes\n"
+		<< "\t\tMax threads per block:\t\t" << prop.maxThreadsPerBlock << "\n"
+		<< "\tMemory:\n"
+		<< "\t\tTotal:\t\t\t\t" << mem_tot << " bytes\n"
+		<< "\t\tFree:\t\t\t\t" << mem_free << " bytes\n";
+	
+	/*
+	std::cout
+		<< "\t---DATA TYPES---\n"
+		<< "\tMax size_t value (index capacity):\t" << SIZE_MAX << "\n"
+		<< "\tUnsigned int max value:\t\t\t" << UINT_MAX << "\n"
+		<< "\tSize of size_t:\t\t\t\t" << sizeof(size_t) << "\n"
+		<< "\n\n";
+	*/
+
+	std::cout << "\n";
 }
 
 enum SieveType {
@@ -65,27 +124,8 @@ int main() {
 	//TEST
 	*/
 
-	//Get GPU capabilities
-	cudaDeviceProp prop;
-	cudaGetDeviceProperties(&prop, 0);
-	std::cout
-		<< "\tC++ ver.: " << __cplusplus << "\n"
-		<< "\tCUDA ver.: " << 10.2 << "\n"
-		<< "\t---CPU SIDE---\n"
-		<< "\tMax allocation capacity (bytes):\t" << SIZE_MAX << "\n"
-		<< "\t---CUDA SIDE---\n"
-		<< "\tGlobal memory capacity (bytes):\t\t" << prop.totalGlobalMem << "\n"
-		<< "\tShared memory capacity (bytes):\t\t" << prop.sharedMemPerBlock << "\n"
-		<< "\tMax threads per block:\t\t\t" << prop.maxThreadsPerBlock << "\n"
-		<< "\t---DATA TYPES---\n"
-		<< "\tUnsigned int max:\t\t\t" << UINT_MAX << "\n"
-		<< "\tSize of size_t:\t\t\t\t" << sizeof(size_t) << "\n"
-		<< "\n\n";
-	
-
-	//size_t n = 1024*100 + 522;
-	//size_t n = ((size_t)3221225472) * 11;	//WORKING HERE: Only requires 1 batch, it should need 10. Overflow somewhere?
-	//size_t n = 65535;
+	//Output system specs
+	OutputSpecs();
 
 	std::map<SieveType, std::string> m;
 	m[ERATOSTHENES_CPU]		= "ERATOSTHENES_CPU";
@@ -117,21 +157,43 @@ int main() {
 
 	//n=10^8, batch_limit=10^8	:	works
 
-	size_t n = 10000000000;	//10^10
+	//size_t n = 10000000000;	//10^10 works
+	//size_t n = 100000000000;	//10^11 doesn't	
+	//	:	It is probably about it exceeding my RAM size (16 Gb)
+	//	:	But then why does 10^10 work? That requires 20 Gb. Hmm...
+	
+	//size_t n = 28100000000;	//2.81*10^10
+	//-> My virtual memory seems to allow ~56.2 GB
+	
+	//		   xyyyyyxxxxx
+	size_t n = 25000000000;	//2.5*10^10
 	//Test
 
 	PrimeMemoryFragsafe* safe_mem_ptr = new PrimeMemoryFragsafe(n);
-	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(n);
+	PrimeMemoryFragsafe* verification_mem_ptr = new PrimeMemoryFragsafe(1);
 
+	size_t bytes = safe_mem_ptr->BytesAllocated() + verification_mem_ptr->BytesAllocated();
 	std::cout 
-		<< ">Program FragSafe Memory Total: " 
-		<< safe_mem_ptr->BytesAllocated() + verification_mem_ptr->BytesAllocated()
-		<< " bytes\n";
+		<< ">Program FragSafe Memory Total:\n\t" 
+		<< bytes << " bytes\n\t"
+		<< (float)bytes/1000000000.f << " gigabytes\n";
+
+	//OutputSpecs();
 
 	//Test
+	//Set verification memory using Atkin CPU
+	//std::cout << ">Setting verification memory\n";
+	//SieveAtkinCPU(n, verification_mem_ptr);
+
+	//Do batched sieve
+	
+	std::cout << ">Starting sieve\n";
 	SieveSundaramCUDABatches* sieve_ptr = new SieveSundaramCUDABatches(n, safe_mem_ptr);
+	/*
+	std::cout << ">Verifying\n";
 	std::cout << sieve_ptr->StringifyResults("Sundaram Batches", verification_mem_ptr) << "\n";
 	delete sieve_ptr;
+	*/
 	//Test
 
 	/* GENERAL RUN */

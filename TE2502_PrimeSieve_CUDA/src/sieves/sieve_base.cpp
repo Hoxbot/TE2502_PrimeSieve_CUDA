@@ -281,6 +281,62 @@ SieveBase::VerificationData SieveBase::VerifyByEratosthenes(PrimeMemoryFragsafe*
 
 }
 
+SieveBase::VerificationData SieveBase::VerifyBySuppliedMemory(PrimeMemoryFragsafe * in_ptr) {
+	//Same as above but doesn't allocate a PrimeMemoryBool to verify against
+
+	//Return-value struct
+	VerificationData ret_data;
+	std::string false_primes = "";
+	std::string missed_primes = "";
+
+
+	//Assumes that the supplied memory is already set correctly
+	//Set allocation space mostly as a formality
+	//NTS: We are assuming that the memory contains [1,n] (as if sieved by Atkin)
+	if (!in_ptr->AllocateSubMemory(this->end_)) { 
+		ret_data.accuracy_str = "Verification Error";
+		return ret_data;
+	}
+
+
+	//Go through all numbers in range
+	size_t num_of_misses = 0;
+	for (size_t i = this->start_; i < this->end_; i++) {
+		bool sieve_result = this->IsPrime(i);
+		bool tester_result = in_ptr->CheckIndex(i - 1);
+
+		//When the results differ, log false primes / misses
+		if (sieve_result && !tester_result) {			//Sieve finding prime when RM doesn't -> false prime
+			num_of_misses++;
+			false_primes += std::to_string(i) + ", ";
+
+			ret_data.false_primes.push_back(i);
+		}
+		else if (!sieve_result && tester_result) {	//Sieve not finding prime when RM does -> miss
+			num_of_misses++;
+			missed_primes += std::to_string(i) + ", ";
+
+			ret_data.false_composites.push_back(i);
+		}
+	}
+
+	//Calculate how many percent of the numbers where identified correctly
+	size_t nums_in_memory = this->mem_class_ptr_->NumberCapacity();
+	float percentage_correct = (1.0f - ((float)num_of_misses / (float)nums_in_memory)) * 100;
+
+	//Add data to return struct
+	ret_data.accuracy_str = std::to_string(percentage_correct);
+	ret_data.accuracy_str.resize(ret_data.accuracy_str.size() - 3);										//Remove some 0:s
+	//if (ret_data.miss_str.size() >= 2) { ret_data.miss_str.resize(ret_data.miss_str.size() - 2); }	//Remove the last ", " from the miss string (if there is one)
+	if (!false_primes.empty() || !missed_primes.empty()) {
+		ret_data.miss_str = "False Primes: <" + false_primes + ">\t";
+		ret_data.miss_str += "Missed Primes: <" + missed_primes + ">";
+	}
+
+	//Return
+	return ret_data;
+}
+
 size_t SieveBase::CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref) {
 	size_t ret_val = 0;
 	for (size_t i = 0; i < in_vec_ref.size(); i++) {
@@ -397,13 +453,13 @@ std::string SieveBase::StringifyResults(std::string in_title, PrimeMemoryFragsaf
 	//VerificationData v = this->VerifyByFile();
 	//VerificationData v = this->VerifyByRabinMiller();
 	//VerificationData v = this->VerifyByEratosthenes(in_ptr);
-
+	VerificationData v = this->VerifyBySuppliedMemory(in_ptr);
 
 	//Fill fields:
 	ret_str += "Range:\t\t\t[" + std::to_string(this->start_) + ", " + std::to_string(this->end_) + "]\n";
 	ret_str += "Numbers in memory:\t" + std::to_string(this->mem_class_ptr_->NumberCapacity()) + "\n";
 	ret_str += "Number of primes found:\t" + std::to_string(num_of_p) + "\n";
-	//ret_str += "Accuracy:\t\t" + v.accuracy_str + "%\n";
+	ret_str += "Accuracy:\t\t" + v.accuracy_str + "%\n";
 	//if (v.miss_str.size() != 0) { ret_str += "Misses:\t\t\t[" + v.miss_str + "]\n"; }
 	ret_str += this->StringifyExecutionTime() + "\n";
 	//ret_str += "Identified primes:\t" + this->StringifyPrimes() + "\n";
@@ -474,7 +530,8 @@ void SieveBase::SaveToFile(std::string in_folder_path, std::string in_file_name,
 
 	//Calculate accuracy and format string
 	//VerificationData v = this->VerifyByRabinMiller();
-	VerificationData v = this->VerifyByEratosthenes(in_ptr);
+	//VerificationData v = this->VerifyByEratosthenes(in_ptr);
+	VerificationData v = this->VerifyBySuppliedMemory(in_ptr);
 
 	//Build line to be appended into file
 	std::string str = "";
@@ -506,8 +563,8 @@ void SieveBase::SaveRegionalDataToFile(std::string in_folder_path, std::string i
 	//Count primes
 	std::vector<size_t> p = this->PrimeVector();
 	//Count misses
-	VerificationData v = this->VerifyByEratosthenes(in_ptr);
-
+	//VerificationData v = this->VerifyByEratosthenes(in_ptr);
+	VerificationData v = this->VerifyBySuppliedMemory(in_ptr);
 
 	//Build line to be appended into file
 	std::string str = "";

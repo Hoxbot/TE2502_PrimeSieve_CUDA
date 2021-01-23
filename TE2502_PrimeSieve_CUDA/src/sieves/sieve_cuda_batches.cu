@@ -9,26 +9,31 @@
 //Protected----------------------------------------------------------------------------------------
 void SieveCUDABatches::AllocateGPUMemory(size_t in_sieve_start, size_t in_sieve_end) {
 	//Get GPU limitations
-	cudaDeviceProp prop;
-	cudaGetDeviceProperties(&prop, 0);
-	size_t gpu_global_mem_capacity = prop.totalGlobalMem;
+	//cudaDeviceProp prop;
+	//cudaGetDeviceProperties(&prop, 0);
+	//size_t gpu_global_mem_capacity = prop.totalGlobalMem;
+
+	//size_t mem_tot, mem_free;
+	//cudaMemGetInfo(&mem_free, &mem_tot);
+	//					xyyyyyxxxxx
+	size_t gpu_mem_cap = 2000000000;	//2*10^9
 
 	//
 	//NTS:	In current experiments we already only use 1/3rd
 	//		By dividing on 9 we get a third of that
 	//gpu_global_mem_capacity /= 9;
 	//gpu_global_mem_capacity = 1025;
-	gpu_global_mem_capacity = 1000000000; //1*10^9
+	//gpu_global_mem_capacity = 1000000000; //1*10^9
 	//gpu_global_mem_capacity = 1000; //1*10^3
 
 	//Fetch the number of bytes stored on the CPU side memory
 	size_t bytes_to_allocate = this->sieve_mem_ptr_->BytesAllocated();
 
 	//Either one batch with x threads id enough, or we need y batches with max threads
-	this->threads_per_batch_ = std::min(bytes_to_allocate, gpu_global_mem_capacity);
+	this->threads_per_batch_ = std::min(bytes_to_allocate, gpu_mem_cap);
 
-	size_t batches_required = (bytes_to_allocate / gpu_global_mem_capacity);		//Number of full batches
-	if (bytes_to_allocate % gpu_global_mem_capacity != 0) { batches_required++; }	//If there are any leftover numbers
+	size_t batches_required = (bytes_to_allocate / gpu_mem_cap);		//Number of full batches
+	if (bytes_to_allocate % gpu_mem_cap != 0) { batches_required++; }	//If there are any leftover numbers
 
 	//Index the batches to be launched with:
 	//>	A pointer to the memory they start at

@@ -24,6 +24,7 @@ private:
 	VerificationData VerifyByRabinMiller();
 	//VerificationData VerifyByEratosthenes();
 	VerificationData VerifyByEratosthenes(PrimeMemoryFragsafe* in_ptr);
+	VerificationData VerifyBySuppliedMemory(PrimeMemoryFragsafe* in_ptr);
 
 	size_t CountNumbersInRegion(size_t in_start, size_t in_end, std::vector<size_t>& in_vec_ref);
 
