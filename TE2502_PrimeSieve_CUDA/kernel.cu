@@ -344,7 +344,7 @@ int main() {
 				}
 
 				std::cout << ">Sieve done. Verifying and saving to file.\n";
-				sieve_ptr->SaveToFile("sieve results/", m[arr[s_i]] + "_6.tsv", verification_mem_ptr);
+				sieve_ptr->SaveToFile("sieve results/", m[arr[s_i]] + "_7.tsv", verification_mem_ptr);
 				//std::cout << sieve_ptr->StringifyResults("Results") << std::endl;
 
 				delete sieve_ptr;
